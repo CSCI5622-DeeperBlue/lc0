@@ -68,8 +68,16 @@ void ChessBoard::Mirror() {
 }
 
 namespace {
-static const std::pair<int, int> kKingMoves[] = {
-    {-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
+static const std::tuple<int, int, int> kKingMoves[] = {
+    {-1, -1, 1}, {-1, -1, -1},
+    {-1, 0, 1}, {-1, 0, -1},
+    {-1, 1, 1}, {-1, 1, -1},
+    {0, -1, 1}, {0, -1, -1},
+    {0, 1, 1}, {0, 1, -1},
+    {1, -1, 1}, {1, -1, -1},
+    {1, 0, 1}, {1, 0, -1},
+    {1, 1, 1}, {1, 1, -1}
+    };
 
 static const std::pair<int, int> kRookDirections[] = {
     {1, 0}, {-1, 0}, {0, 1}, {0, -1}};
@@ -432,8 +440,10 @@ MoveList ChessBoard::GeneratePseudolegalMoves() const {
     // King
     if (source == our_king_) {
       for (const auto& delta : kKingMoves) {
-        const auto dst_row = source.row() + delta.first;
-        const auto dst_col = source.col() + delta.second;
+        const auto dst_row = source.row() + std::get<0>(delta);
+        const auto dst_col = source.col() + std::get<1>(delta);
+        // TODO: update this for third column as well.
+
         if (!BoardSquare::IsValid(dst_row, dst_col)) continue;
         const BoardSquare destination(dst_row, dst_col);
         if (our_pieces_.get(destination)) continue;
