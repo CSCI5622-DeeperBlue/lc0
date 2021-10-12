@@ -156,6 +156,8 @@ class ChessBoard {
       return result;
     }
 
+    // 3d update for new structure
+
     std::string DebugString() const {
       std::string result;
       if (data_ == 0) result = "-";
@@ -200,9 +202,12 @@ class ChessBoard {
 
   std::string DebugString() const;
 
+  // # 3d need to update
   BitBoard ours() const { return our_pieces_; }
   BitBoard theirs() const { return their_pieces_; }
   BitBoard pawns() const { return pawns_ & kPawnMask; }
+  // 3d en passant was designed to speed up game, not give stategic
+  // there is rule we can use.
   BitBoard en_passant() const { return pawns_ - kPawnMask; }
   BitBoard bishops() const { return bishops_ - rooks_; }
   BitBoard rooks() const { return rooks_ - bishops_; }
@@ -217,6 +222,8 @@ class ChessBoard {
   const Castlings& castlings() const { return castlings_; }
   bool flipped() const { return flipped_; }
 
+
+  // 3d over loaded example
   bool operator==(const ChessBoard& other) const {
     return (our_pieces_ == other.our_pieces_) &&
            (their_pieces_ == other.their_pieces_) && (rooks_ == other.rooks_) &&
@@ -228,6 +235,7 @@ class ChessBoard {
 
   bool operator!=(const ChessBoard& other) const { return !operator==(other); }
 
+  // 3d update to have all with UCI nomenclature
   enum Square : uint8_t {
     // clang-format off
     A1 = 0, B1, C1, D1, E1, F1, G1, H1,
@@ -252,6 +260,9 @@ class ChessBoard {
     RANK_1 = 0, RANK_2, RANK_3, RANK_4, RANK_5, RANK_6, RANK_7, RANK_8
     // clang-format on
   };
+
+// 3d need enum for level
+
 
  private:
   // All white pieces.

@@ -40,6 +40,8 @@ namespace lczero {
 namespace {
 const int kDefaultThreads = 2;
 
+//#3D  consider adding debug option to set true for condition outputs to log file
+
 const OptionId kThreadsOptionId{"threads", "Threads",
                                 "Number of (CPU) worker threads to use.", 't'};
 const OptionId kLogFileId{"logfile", "LogFile",
@@ -168,6 +170,8 @@ void EngineController::NewGame() {
   search_.reset();
   tree_.reset();
   CreateFreshTimeManager();
+  // 3D This should return an updated position.
+
   current_position_ = {ChessBoard::kStartposFen, {}};
   UpdateFromUciOptions();
 }

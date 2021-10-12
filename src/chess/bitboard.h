@@ -90,6 +90,9 @@ class BoardSquare {
 // Square a1 is bit 0, square a8 is bit 7, square b1 is bit 8.
 class BitBoard {
  public:
+
+  // 3d we need 64*3 192 bits to store all squares. We can combine three of these in an array or make an update addition/division by overloading the c++ operations
+  // https://en.cppreference.com/w/cpp/language/operators
   constexpr BitBoard(std::uint64_t board) : board_(board) {}
   BitBoard() = default;
   BitBoard(const BitBoard&) = default;

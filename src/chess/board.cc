@@ -68,6 +68,8 @@ void ChessBoard::Mirror() {
 }
 
 namespace {
+
+// 3d updated for all movements assumes level is last entry
 static const std::tuple<int, int, int> kKingMoves[] = {
     {-1, -1, 1}, {-1, -1, -1},
     {-1, 0, 1}, {-1, 0, -1},
@@ -79,13 +81,24 @@ static const std::tuple<int, int, int> kKingMoves[] = {
     {1, 1, 1}, {1, 1, -1}
     };
 
+// 3d needs update
 static const std::pair<int, int> kRookDirections[] = {
     {1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 
+// 3d needs update
 static const std::pair<int, int> kBishopDirections[] = {
     {1, 1}, {-1, 1}, {1, -1}, {-1, -1}};
 
+
+// 3d if not nice format call for debug of bitboard make one.
+// 3d if not defined somewhere in code, clearly make coodinate system/examples for bitboard
+// note these generations could be done in python and copied in
+
 // Which squares can rook attack from every of squares.
+// 3d update this stucture
+// [xxxxxxxx] [0x01010101010101FEULL] [xxxxxxxx]
+// note could use -1 as well to referenced last, which gives order [M, T, B]
+
 static const BitBoard kRookAttacks[] = {
     0x01010101010101FEULL, 0x02020202020202FDULL, 0x04040404040404FBULL,
     0x08080808080808F7ULL, 0x10101010101010EFULL, 0x20202020202020DFULL,
@@ -262,11 +275,17 @@ static const BitBoard kBishopMagicNumbers[] = {
 static MagicParams rook_magic_params[64];
 static MagicParams bishop_magic_params[64];
 
+// 3d note: appears we need magic parameters, not magic number.
+
+// 3d review, may not need to be updated if BitBoard type is updated
 // Precomputed attacks bitboard tables.
 static BitBoard rook_attacks_table[102400];
 static BitBoard bishop_attacks_table[5248];
 
 // Builds rook or bishop attacks table.
+// 3d do we expect the mask to be 1 for all squares we can attack?
+// why don't we use the prebuit lookups?
+
 static void BuildAttacksTable(MagicParams* magic_params,
                               BitBoard* attacks_table,
                               const std::pair<int, int>* directions) {
