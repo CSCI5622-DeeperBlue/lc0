@@ -291,6 +291,7 @@ class Move {
   // bits 6..11 "from"-square
   // bits 12..14 promotion value
 
+
   enum Masks : uint16_t {
     kToMask = 0b0000000000111111,
     kFromMask = 0b0000111111000000,

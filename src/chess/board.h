@@ -236,9 +236,23 @@ class ChessBoard {
   bool operator!=(const ChessBoard& other) const { return !operator==(other); }
 
   // 3d update to have all with UCI nomenclature
+  // updated to have all layers
+  // todo this may need more updates
   enum Square : uint8_t {
     // clang-format off
-    A1 = 0, B1, C1, D1, E1, F1, G1, H1,
+
+    // bottom layer
+    A1L = 0, B1L, C1L, D1L, E1, F1, G1, H1L,
+    A2L, B2L, C2L, D2L, E2L, F2L, G2L, H2L,
+    A3L, B3L, C3L, D3L, E3L, F3L, G3L, H3L,
+    A4L, B4L, C4L, D4L, E4L, F4L, G4L, H4L,
+    A5L, B5L, C5L, D5L, E5L, F5L, G5L, H5L,
+    A6L, B6L, C6L, D6L, E6L, F6L, G6L, H6L,
+    A7L, B7L, C7L, D7L, E7L, F7L, G7L, H7L,
+    A8L, B8L, C8L, D8L, E8L, F8L, G8L, H8L,
+
+    // middle
+    A1 = 65, B1, C1, D1, E1, F1, G1, H1,
     A2, B2, C2, D2, E2, F2, G2, H2,
     A3, B3, C3, D3, E3, F3, G3, H3,
     A4, B4, C4, D4, E4, F4, G4, H4,
@@ -246,6 +260,17 @@ class ChessBoard {
     A6, B6, C6, D6, E6, F6, G6, H6,
     A7, B7, C7, D7, E7, F7, G7, H7,
     A8, B8, C8, D8, E8, F8, G8, H8,
+
+    // top
+    A1U = 0, B1U, C1U, D1U, E1U, F1U, G1U, H1U,
+    A2U, B2U, C2U, D2U, E2U, F2U, G2U, H2U,
+    A3U, B3U, C3U, D3U, E3U, F3U, G3U, H3U,
+    A4U, B4U, C4U, D4U, E4U, F4U, G4U, H4U,
+    A5U, B5U, C5U, D5U, E5U, F5U, G5U, H5U,
+    A6U, B6U, C6U, D6U, E6U, F6U, G6U, H6U,
+    A7U, B7U, C7U, D7U, E7U, F7U, G7U, H7U,
+    A8U, B8U, C8U, D8U, E8U, F8U, G8U, H8U,
+
     // clang-format on
   };
 
