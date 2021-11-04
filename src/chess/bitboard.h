@@ -46,6 +46,11 @@ class BoardSquare {
   // From row(bottom to top), and col(left to right), 0-based.
   constexpr BoardSquare(int row, int col) : BoardSquare(row * 8 + col) {}
   // From Square name, e.g e4. Only lowercase.
+
+
+  // 3d
+  // Jesse Will update
+
   BoardSquare(const std::string& str, bool black = false)
       : BoardSquare(black ? '8' - str[1] : str[1] - '1', str[0] - 'a') {}
   constexpr std::uint8_t as_int() const { return square_; }
@@ -293,8 +298,8 @@ class Move {
 
 
   enum Masks : uint16_t {
-    kToMask = 0b0000000000111111,
-    kFromMask = 0b0000111111000000,
+    kToMask =    0b0000000000111111,
+    kFromMask =  0b0000111111000000,
     kPromoMask = 0b0111000000000000,
   };
 };

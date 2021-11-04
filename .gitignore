@@ -14,3 +14,5 @@ src/.vs/
 subprojects/*
 testdata/
 xcuserdata
+.vs/
+.vscode/

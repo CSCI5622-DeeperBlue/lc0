@@ -38,6 +38,17 @@
 #include "utils/mutex.h"
 #include "utils/optionsparser.h"
 
+
+/*
+* 3d updates
+Andres.
+
+main.c. - may be ok
+utils/commandline.h - may not need updates
+
+
+
+*/
 namespace lczero {
 
 struct CurrentPosition {

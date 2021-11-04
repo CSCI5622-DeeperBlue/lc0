@@ -242,7 +242,7 @@ class ChessBoard {
     // clang-format off
 
     // bottom layer
-    A1L = 0, B1L, C1L, D1L, E1, F1, G1, H1L,
+    A1L = 0, B1L, C1L, D1L, E1L, F1L, G1L, H1L,
     A2L, B2L, C2L, D2L, E2L, F2L, G2L, H2L,
     A3L, B3L, C3L, D3L, E3L, F3L, G3L, H3L,
     A4L, B4L, C4L, D4L, E4L, F4L, G4L, H4L,
@@ -252,17 +252,17 @@ class ChessBoard {
     A8L, B8L, C8L, D8L, E8L, F8L, G8L, H8L,
 
     // middle
-    A1 = 65, B1, C1, D1, E1, F1, G1, H1,
-    A2, B2, C2, D2, E2, F2, G2, H2,
-    A3, B3, C3, D3, E3, F3, G3, H3,
-    A4, B4, C4, D4, E4, F4, G4, H4,
-    A5, B5, C5, D5, E5, F5, G5, H5,
-    A6, B6, C6, D6, E6, F6, G6, H6,
-    A7, B7, C7, D7, E7, F7, G7, H7,
-    A8, B8, C8, D8, E8, F8, G8, H8,
+    A1M, B1M, C1M, D1M, E1M, F1M, G1M, H1M,
+    A2M, B2M, C2M, D2M, E2M, F2M, G2M, H2M,
+    A3M, B3M, C3M, D3M, E3M, F3M, G3M, H3M,
+    A4M, B4M, C4M, D4M, E4M, F4M, G4M, H4M,
+    A5M, B5M, C5M, D5M, E5M, F5M, G5M, H5M,
+    A6M, B6M, C6M, D6M, E6M, F6M, G6M, H6M,
+    A7M, B7M, C7M, D7M, E7M, F7M, G7M, H7M,
+    A8M, B8M, C8M, D8M, E8M, F8M, G8M, H8M,
 
     // top
-    A1U = 0, B1U, C1U, D1U, E1U, F1U, G1U, H1U,
+    A1U, B1U, C1U, D1U, E1U, F1U, G1U, H1U,
     A2U, B2U, C2U, D2U, E2U, F2U, G2U, H2U,
     A3U, B3U, C3U, D3U, E3U, F3U, G3U, H3U,
     A4U, B4U, C4U, D4U, E4U, F4U, G4U, H4U,

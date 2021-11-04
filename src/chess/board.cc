@@ -82,12 +82,19 @@ static const std::tuple<int, int, int> kKingMoves[] = {
     };
 
 // 3d needs update
-static const std::pair<int, int> kRookDirections[] = {
-    {1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+static const std::tuple<int, int,int> kRookDirections[] = {
+    {1, 0, 0}, {-1, 0, 0},
+    {0, 1, 0}, {0, -1, 0},
+    {0, 0, 1}, {0, 0, -1}
+    };
 
 // 3d needs update
-static const std::pair<int, int> kBishopDirections[] = {
-    {1, 1}, {-1, 1}, {1, -1}, {-1, -1}};
+static const std::tuple<int, int,int> kBishopDirections[] = {
+    {1, 1, 0}, {-1, 1,0},
+    {1, -1, 0}, {-1, -1, 0},
+    {1, -1, 1}, {-1, -1, 1},
+    {1, -1, -1}, {-1, -1, -1}
+    };
 
 
 // 3d if not nice format call for debug of bitboard make one.
@@ -288,7 +295,7 @@ static BitBoard bishop_attacks_table[5248];
 
 static void BuildAttacksTable(MagicParams* magic_params,
                               BitBoard* attacks_table,
-                              const std::pair<int, int>* directions) {
+                              const std::tuple<int, int, int >* directions) {
   // Offset into lookup table.
   uint32_t table_offset = 0;
 
@@ -304,12 +311,12 @@ static void BuildAttacksTable(MagicParams* magic_params,
       auto dst_row = b_sq.row();
       auto dst_col = b_sq.col();
       while (true) {
-        dst_row += direction.first;
-        dst_col += direction.second;
+        dst_row += std::get<0>(direction);
+        dst_col += std::get<1>(direction);
         // If the next square in this direction is invalid, the current square
         // is at the board's edge and should not be added.
-        if (!BoardSquare::IsValid(dst_row + direction.first,
-                                  dst_col + direction.second))
+        if (!BoardSquare::IsValid(dst_row + std::get<0>(direction),
+                                  dst_col + std::get<1>(direction)))
           break;
         const BoardSquare destination(dst_row, dst_col);
         mask.set(destination);
@@ -357,8 +364,8 @@ static void BuildAttacksTable(MagicParams* magic_params,
         auto dst_row = b_sq.row();
         auto dst_col = b_sq.col();
         while (true) {
-          dst_row += direction.first;
-          dst_col += direction.second;
+          dst_row += std::get<0>(direction);
+          dst_col += std::get<1>(direction);
           if (!BoardSquare::IsValid(dst_row, dst_col)) break;
           const BoardSquare destination(dst_row, dst_col);
           attacks.set(destination);
@@ -493,18 +500,18 @@ MoveList ChessBoard::GeneratePseudolegalMoves() const {
       // will be done in legal move check phase.
       if (castlings_.we_can_000()) {
         const uint8_t qrook = castlings_.queenside_rook();
-        if (walk_free(std::min(static_cast<uint8_t>(C1), qrook),
-                      std::max(static_cast<uint8_t>(D1), king), qrook, king) &&
-            !range_attacked(king, C1)) {
+        if (walk_free(std::min(static_cast<uint8_t>(C1M), qrook),
+                      std::max(static_cast<uint8_t>(D1M), king), qrook, king) &&
+            !range_attacked(king, C1M)) {
           result.emplace_back(source,
                               BoardSquare(RANK_1, castlings_.queenside_rook()));
         }
       }
       if (castlings_.we_can_00()) {
         const uint8_t krook = castlings_.kingside_rook();
-        if (walk_free(std::min(static_cast<uint8_t>(F1), king),
-                      std::max(static_cast<uint8_t>(G1), krook), krook, king) &&
-            !range_attacked(king, G1)) {
+        if (walk_free(std::min(static_cast<uint8_t>(F1M), king),
+                      std::max(static_cast<uint8_t>(G1M), krook), krook, king) &&
+            !range_attacked(king, G1M)) {
           result.emplace_back(source,
                               BoardSquare(RANK_1, castlings_.kingside_rook()));
         }
@@ -626,19 +633,19 @@ bool ChessBoard::ApplyMove(Move move) {
         // Castling.
         if (to_col > from_col) {
           // Kingside.
-          do_castling(G1, to.as_int(), F1);
+          do_castling(G1M, to.as_int(), F1M);
         } else {
           // Queenside.
-          do_castling(C1, to.as_int(), D1);
+          do_castling(C1M, to.as_int(), D1M);
         }
         return false;
       } else if (from_col == FILE_E && to_col == FILE_G) {
         // Non FRC-style e1g1 castling (as opposed to e1h1).
-        do_castling(G1, H1, F1);
+        do_castling(G1M, H1M, F1M);
         return false;
       } else if (from_col == FILE_E && to_col == FILE_C) {
         // Non FRC-style e1c1 castling (as opposed to e1a1).
-        do_castling(C1, A1, D1);
+        do_castling(C1M, A1M, D1M);
         return false;
       }
     }
@@ -762,14 +769,14 @@ bool ChessBoard::IsSameMove(Move move1, Move move2) const {
   if (move1 == move2) return true;
   // Explicitly check all legacy castling moves. Need to check for king, for
   // e.g. rook e1a1 and e1c1 are different moves.
-  if (move1.from() != move2.from() || move1.from() != E1 ||
+  if (move1.from() != move2.from() || move1.from() != E1M ||
       our_king_ != move1.from()) {
     return false;
   }
-  if (move1.to() == A1 && move2.to() == C1) return true;
-  if (move1.to() == C1 && move2.to() == A1) return true;
-  if (move1.to() == G1 && move2.to() == H1) return true;
-  if (move1.to() == H1 && move2.to() == G1) return true;
+  if (move1.to() == A1M && move2.to() == C1M) return true;
+  if (move1.to() == C1M && move2.to() == A1M) return true;
+  if (move1.to() == G1M && move2.to() == H1M) return true;
+  if (move1.to() == H1M && move2.to() == G1M) return true;
   return false;
 }
 
@@ -777,15 +784,15 @@ Move ChessBoard::GetLegacyMove(Move move) const {
   if (our_king_ != move.from() || !our_pieces_.get(move.to())) {
     return move;
   }
-  if (move == Move(E1, H1)) return Move(E1, G1);
-  if (move == Move(E1, A1)) return Move(E1, C1);
+  if (move == Move(E1M, H1M)) return Move(E1M, G1M);
+  if (move == Move(E1M, A1M)) return Move(E1M, C1M);
   return move;
 }
 
 Move ChessBoard::GetModernMove(Move move) const {
-  if (our_king_ != E1 || move.from() != E1) return move;
-  if (move == Move(E1, G1) && !our_pieces_.get(G1)) return Move(E1, H1);
-  if (move == Move(E1, C1) && !our_pieces_.get(C1)) return Move(E1, A1);
+  if (our_king_ != E1M || move.from() != E1M) return move;
+  if (move == Move(E1M, G1M) && !our_pieces_.get(G1M)) return Move(E1M, H1M);
+  if (move == Move(E1M, C1M) && !our_pieces_.get(C1M)) return Move(E1M, A1M);
   return move;
 }
 
@@ -807,8 +814,8 @@ KingAttackInfo ChessBoard::GenerateKingAttackInfo() const {
       bool possible_pinned_piece_found = false;
       BoardSquare possible_pinned_piece;
       while (true) {
-        dst_row += direction.first;
-        dst_col += direction.second;
+        dst_row += std::get<0>(direction);
+        dst_col += std::get<1>(direction);
         if (!BoardSquare::IsValid(dst_row, dst_col)) break;
         const BoardSquare destination(dst_row, dst_col);
         if (our_pieces_.get(destination)) {
@@ -850,8 +857,8 @@ KingAttackInfo ChessBoard::GenerateKingAttackInfo() const {
       bool possible_pinned_piece_found = false;
       BoardSquare possible_pinned_piece;
       while (true) {
-        dst_row += direction.first;
-        dst_col += direction.second;
+        dst_row +=std::get<0>(direction);
+        dst_col += std::get<1>(direction);
         if (!BoardSquare::IsValid(dst_row, dst_col)) break;
         const BoardSquare destination(dst_row, dst_col);
         if (our_pieces_.get(destination)) {

@@ -296,13 +296,36 @@ BoardSquare Transform(BoardSquare sq, int transform) {
 }
 }  // namespace
 
+
+// 2d: e2e4
+// 3d: e2me4m
 Move::Move(const std::string& str, bool black) {
-  if (str.size() < 4) throw Exception("Bad move: " + str);
-  SetFrom(BoardSquare(str.substr(0, 2), black));
-  SetTo(BoardSquare(str.substr(2, 2), black));
-  if (str.size() != 4) {
-    if (str.size() != 5) throw Exception("Bad move: " + str);
-    switch (str[4]) {
+
+  if (str.size() < 4 || str.size() > 7) throw Exception("Bad move: " + str);
+
+  bool is3d = false;
+  bool isPromotion = false;
+  char promotion = ' ';
+
+  //update characters to be 3d compatible by adding 'm'
+  if (!is3d) {
+  //  char fromString[3] = {str[0], str[1],  'm'} ;
+  //  char toString[3]   = {str[2], str[3], 'm'};
+   SetFrom(BoardSquare({str[0], str[1],  'm'}, black));
+   SetTo(BoardSquare({str[2], str[3], 'm'}, black));
+  } else {
+   SetFrom(BoardSquare(str.substr(0, 3), black));
+   SetTo(BoardSquare(str.substr(3, 6), black));
+  }
+
+  is3d = (str.size() >= 6);
+  isPromotion = (str.size() == 7 || str.size() == 5 );
+
+  if (isPromotion) {
+    if (is3d) { promotion = str[6]; }
+    else { promotion = str[4]; }
+
+    switch (promotion) {
       case 'q':
       case 'Q':
         SetPromotion(Promotion::Queen);
