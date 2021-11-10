@@ -15,6 +15,7 @@ set TEST=false
 rem 2. Edit the paths for the build dependencies.
 set CUDA_PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.4
 set CUDNN_PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\NVIDIA\cudnn-11.4-windows-x64-v8.2.4.15\cuda
+
 set OPENBLAS_PATH=C:\OpenBLAS
 set MKL_PATH=C:\Program Files (x86)\IntelSWTools\compilers_and_libraries\windows\mkl
 set DNNL_PATH=C:\dnnl_win_1.1.1_cpu_vcomp
@@ -66,6 +67,8 @@ if errorlevel 1 exit /b
 pause
 
 cd build
+
+copy ./128x10-t60-2-1650.pb ./build
 
 msbuild /m /p:Configuration=Release /p:Platform=x64 /p:WholeProgramOptimization=true ^
 /p:PreferredToolArchitecture=x64 lc0.sln /filelogger

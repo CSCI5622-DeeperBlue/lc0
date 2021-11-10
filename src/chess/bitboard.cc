@@ -299,11 +299,12 @@ BoardSquare Transform(BoardSquare sq, int transform) {
 
 // 2d: e2e4
 // 3d: e2me4m
+
 Move::Move(const std::string& str, bool black) {
 
   if (str.size() < 4 || str.size() > 7) throw Exception("Bad move: " + str);
 
-  bool is3d = false;
+  bool is3d = (str.size() >= 6);
   bool isPromotion = false;
   char promotion = ' ';
 
@@ -317,8 +318,7 @@ Move::Move(const std::string& str, bool black) {
    SetFrom(BoardSquare(str.substr(0, 3), black));
    SetTo(BoardSquare(str.substr(3, 6), black));
   }
-
-  is3d = (str.size() >= 6);
+  
   isPromotion = (str.size() == 7 || str.size() == 5 );
 
   if (isPromotion) {
