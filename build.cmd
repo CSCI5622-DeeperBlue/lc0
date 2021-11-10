@@ -69,3 +69,7 @@ cd build
 
 msbuild /m /p:Configuration=Release /p:Platform=x64 /p:WholeProgramOptimization=true ^
 /p:PreferredToolArchitecture=x64 lc0.sln /filelogger
+
+rem 3. copy configuration file to build so that it
+
+copy ..\build-support\256x20-test-2-swa-548250.pb.gz .\256x20-test-2-swa-548250.pb.gz

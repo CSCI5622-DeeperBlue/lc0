@@ -40,13 +40,15 @@ namespace lczero {
 class BoardSquare {
  public:
   constexpr BoardSquare() {}
-  // As a single number, 0 to 63, bottom to top, left to right.
-  // 0 is a1, 8 is a2, 63 is h8.
+  // As a single number, 0 to 63, bottom to top, left to right, lower to upper
+  // 0 is a1l, 8 is a2l, 63 is h8l.
+  // 64 is a1m, 71 is a1l, 127 is h8m
+  // 128 is a1u, 191 is h8u
+
   constexpr BoardSquare(std::uint8_t num) : square_(num) {}
   // From row(bottom to top), and col(left to right), 0-based.
   constexpr BoardSquare(int row, int col) : BoardSquare(row * 8 + col) {}
   // From Square name, e.g e4. Only lowercase.
-
 
   // 3d
   // Jesse Will update

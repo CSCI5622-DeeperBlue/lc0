@@ -302,6 +302,7 @@ static void BuildAttacksTable(MagicParams* magic_params,
   // Initialize for all board squares.
   for (unsigned square = 0; square < 64; square++) {
     const BoardSquare b_sq(square);
+    // 3d TODO: update this to have column
 
     // Calculate relevant occupancy masks.
     BitBoard mask = {0};

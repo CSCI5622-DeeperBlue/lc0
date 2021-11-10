@@ -278,9 +278,9 @@ std::vector<unsigned short> BuildMoveIndices() {
 
 const std::vector<unsigned short> kMoveToIdx = BuildMoveIndices();
 const int kKingCastleIndex =
-    kMoveToIdx[BoardSquare("e1").as_int() * 64 + BoardSquare("h1").as_int()];
+    kMoveToIdx[BoardSquare("e1m").as_int() * 64 + BoardSquare("h1m").as_int()];
 const int kQueenCastleIndex =
-    kMoveToIdx[BoardSquare("e1").as_int() * 64 + BoardSquare("a1").as_int()];
+    kMoveToIdx[BoardSquare("e1m").as_int() * 64 + BoardSquare("a1m").as_int()];
 
 BoardSquare Transform(BoardSquare sq, int transform) {
   if ((transform & FlipTransform) != 0) {
