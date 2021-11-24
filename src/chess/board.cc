@@ -50,6 +50,8 @@ const char* ChessBoard::kStartposFen =
 
 const ChessBoard ChessBoard::kStartposBoard(ChessBoard::kStartposFen);
 
+
+// 3d TODO
 const BitBoard ChessBoard::kPawnMask = 0x00FFFFFFFFFFFF00ULL;
 
 void ChessBoard::Clear() {
@@ -1011,9 +1013,9 @@ MoveList ChessBoard::GenerateLegalMoves() const {
 // TODO 3d
 void ChessBoard::SetFromFen(std::string fen, int* rule50_ply, int* moves) {
   Clear();
-  int row = 7;
+  int row = 7 * 3; // expect three board layers
   int col = 0;
-
+  int layer = 0; // will set this after parsing
   // Remove any trailing whitespaces to detect eof after the last field.
   fen.erase(std::find_if(fen.rbegin(), fen.rend(),
                          [](char c) { return !std::isspace(c); })
@@ -1052,30 +1054,35 @@ void ChessBoard::SetFromFen(std::string fen, int* rule50_ply, int* moves) {
     }
     if (col >= 8) throw Exception("Bad fen string (too many columns): " + fen);
 
+    // 3d update. our layer is 0 = bottom, 2 = top, fen starts at 0 = top
+    layer = 2 - row/3;
+    // set the row to the appropriate row
+    row = row % 7;
+
     if (std::isupper(c)) {
       // White piece.
-      our_pieces_.set(row, col);
+      our_pieces_.set(row, col, layer);
     } else {
       // Black piece.
-      their_pieces_.set(row, col);
+      their_pieces_.set(row, col, layer);
     }
 
     if (c == 'K') {
-      our_king_.set(row, col);
+      our_king_.set(row, col, layer);
     } else if (c == 'k') {
-      their_king_.set(row, col);
+      their_king_.set(row, col, layer);
     } else if (c == 'R' || c == 'r') {
-      rooks_.set(row, col);
+      rooks_.set(row, col, layer);
     } else if (c == 'B' || c == 'b') {
-      bishops_.set(row, col);
+      bishops_.set(row, col, layer);
     } else if (c == 'Q' || c == 'q') {
-      rooks_.set(row, col);
-      bishops_.set(row, col);
+      rooks_.set(row, col, layer);
+      bishops_.set(row, col, layer);
     } else if (c == 'P' || c == 'p') {
       if (row == 7 || row == 0) {
         throw Exception("Bad fen string (pawn in first/last row): " + fen);
       }
-      pawns_.set(row, col);
+      pawns_.set(row, col, layer);
     } else if (c == 'N' || c == 'n') {
       // Do nothing
     } else {

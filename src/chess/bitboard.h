@@ -47,7 +47,10 @@ class BoardSquare {
 
   constexpr BoardSquare(std::uint8_t num) : square_(num) {}
   // From row(bottom to top), and col(left to right), 0-based.
-  constexpr BoardSquare(int row, int col) : BoardSquare(row * 8 + col) {}
+  constexpr BoardSquare(int row, int col, int layer) : BoardSquare(64*layer + row * 8 + col) {}
+
+  // might do away with this, assumes if layer isn't specified is actually on middle layer
+  constexpr BoardSquare(int row, int col) : BoardSquare(64 + row * 8 + col) {}
   // From Square name, e.g e4. Only lowercase.
 
   // 3d
@@ -57,7 +60,11 @@ class BoardSquare {
       : BoardSquare(black ? '8' - str[1] : str[1] - '1', str[0] - 'a') {}
   constexpr std::uint8_t as_int() const { return square_; }
   constexpr std::uint64_t as_board() const { return 1ULL << square_; }
-  void set(int row, int col) { square_ = row * 8 + col; }
+
+  // @param row 0 index row (0  = a, 7 = h)
+  // @param col 0 indexed col (0 = 1, 7 = 8)
+  // @param layer 0 indexed layer, (0 = b, 2 = u)
+  void set(int row, int col, int layer) { square_ = layer*64 + row * 8 + col; }
 
   // 0-based, bottom to top.
   int row() const { return square_ / 8; }
@@ -154,7 +161,7 @@ class BitBoard {
   // Sets value of given square to 1.
   void set(BoardSquare square) { set(square.as_int()); }
   void set(std::uint8_t pos) { board_ |= (std::uint64_t(1) << pos); }
-  void set(int row, int col) { set(BoardSquare(row, col)); }
+  void set(int row, int col, int layer) { set(BoardSquare(row, col, layer)); }
 
   // Sets value of given square to 0.
   void reset(BoardSquare square) { reset(square.as_int()); }

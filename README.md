@@ -52,6 +52,12 @@ Finally, lc0 requires a compiler supporting C++17. Minimal versions seem to be g
 
 Given those basics, the OS and backend specific instructions are below.
 
+## 3d
+
+Define FEN string starting position as:
+
+    "8/8/8/8/8/8/8/8/rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/8/8/8/8/8/8/8/8 w KQkq - 0 1";
+
 ### Linux
 
 #### Generic
@@ -162,11 +168,11 @@ First you need to install some required packages through Terminal:
 
 Or.
 
-5. (For MacOS 10.15 Catalina, or if the other step 5 fails): 
+5. (For MacOS 10.15 Catalina, or if the other step 5 fails):
  * Install Xcode command-line tools: ``xcode-select --install``
  * Install "XCode Developer Tools" through the app store. (First one on the list of Apps if searched.)
  * Associate the SDK headers in XCode with a command: export CPATH=\`xcrun --show-sdk-path\`/usr/include
- 
+
 Now download the lc0 source, if you haven't already done so, following the instructions earlier in the page.
 
 6. Go to the lc0 directory.

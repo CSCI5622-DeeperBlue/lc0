@@ -10,7 +10,7 @@ set MKL=false
 set DNNL=false
 set OPENBLAS=false
 set EIGEN=false
-set TEST=false
+set TEST=true
 
 rem 2. Edit the paths for the build dependencies.
 set CUDA_PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.4

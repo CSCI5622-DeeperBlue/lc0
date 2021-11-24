@@ -67,7 +67,7 @@ TEST(Position, SetFenGetFen) {
 TEST(PositionHistory, ComputeLastMoveRepetitionsWithoutLegalEnPassant) {
   ChessBoard board;
   PositionHistory history;
-  board.SetFromFen("3b4/rp1r1k2/8/1RP2p1p/p1KP4/P3P2P/5P2/1R2B3 b - - 2 30");
+  board.SetFromFen("8/8/8/8/8/8/8/8/8/3b4/rp1r1k2/8/1RP2p1p/p1KP4/P3P2P/5P2/1R2B3 b - - 2 30");
   history.Reset(board, 2, 30);
   history.Append(Move("f7f8", true));
   history.Append(Move("f2f4", false));
