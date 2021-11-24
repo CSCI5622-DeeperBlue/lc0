@@ -237,6 +237,9 @@ class BitBoard {
   std::uint64_t board_ = 0;
 };
 
+
+// TODO 3d - masure updated
+// Jesse TODO
 class Move {
  public:
   enum class Promotion : std::uint8_t { None, Queen, Rook, Bishop, Knight };

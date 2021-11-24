@@ -258,6 +258,21 @@ InputPlanes EncodePositionForNN(
     }
 
     const int base = i * kPlanesPerBoard;
+    // 3d encode pauns
+    // Options
+    // 1) keep same number of layers, change from 8x8 to 8x8x3? if 4 could 16x16.
+    // 2) Have three layers for each type, indicates 112 => 12*3 - 100 = 136?;
+
+
+    // why board.ours() & board.pawns() instead of board.pawns()?
+
+    // pawns - bottom layer
+    result[base + 0].mask = (board.ours() & board.pawns_bottom()).as_int();
+    // pawns - middle layer
+    result[base + 1].mask = (board.ours() & board.pawns_middle()).as_int();
+    // pawns - middle layer
+    result[base + 2].mask = (board.ours() & board.pawns_top()).as_int();
+
     result[base + 0].mask = (board.ours() & board.pawns()).as_int();
     result[base + 1].mask = (board.ours() & board.knights()).as_int();
     result[base + 2].mask = (board.ours() & board.bishops()).as_int();

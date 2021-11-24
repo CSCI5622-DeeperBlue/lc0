@@ -22,7 +22,9 @@
 
 namespace lczero {
 
+// 3d likely need update
 auto kAllSquaresMask = std::numeric_limits<std::uint64_t>::max();
+
 
 TEST(EncodePositionForNN, EncodeStartPosition) {
   ChessBoard board;
@@ -30,6 +32,7 @@ TEST(EncodePositionForNN, EncodeStartPosition) {
   board.SetFromFen(ChessBoard::kStartposFen);
   history.Reset(board, 0, 1);
 
+  // 3d may need to change pblczero::NetworkFormat::INPUT_CLASSICAL_112_PLANE to new enum
   InputPlanes encoded_planes =
       EncodePositionForNN(pblczero::NetworkFormat::INPUT_CLASSICAL_112_PLANE,
                           history, 8, FillEmptyHistory::NO, nullptr);

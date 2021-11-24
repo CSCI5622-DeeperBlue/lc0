@@ -42,8 +42,11 @@
 
 namespace lczero {
 
+// 3d update
+// define as starting on top board,
+// keep reset
 const char* ChessBoard::kStartposFen =
-    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    "8/8/8/8/8/8/8/8/rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/8/8/8/8/8/8/8/8 w KQkq - 0 1";
 
 const ChessBoard ChessBoard::kStartposBoard(ChessBoard::kStartposFen);
 
@@ -53,6 +56,7 @@ void ChessBoard::Clear() {
   std::memset(reinterpret_cast<void*>(this), 0, sizeof(ChessBoard));
 }
 
+// 3d todo
 void ChessBoard::Mirror() {
   our_pieces_.Mirror();
   their_pieces_.Mirror();
@@ -1004,6 +1008,7 @@ MoveList ChessBoard::GenerateLegalMoves() const {
   return result;
 }
 
+// TODO 3d
 void ChessBoard::SetFromFen(std::string fen, int* rule50_ply, int* moves) {
   Clear();
   int row = 7;

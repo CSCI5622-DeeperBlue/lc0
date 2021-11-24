@@ -1,0 +1,1 @@
+.\build\lc0.exe --logfile=C:\chess\log-files\localbuild.txt

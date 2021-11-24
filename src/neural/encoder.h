@@ -44,6 +44,8 @@ int TransformForPosition(pblczero::NetworkFormat::InputFormat input_format,
                          const PositionHistory& history);
 
 // Encodes the last position in history for the neural network request.
+// TODO 3d - network might not change? We, might have to change planes
+// TODO 3d -
 InputPlanes EncodePositionForNN(
     pblczero::NetworkFormat::InputFormat input_format,
     const PositionHistory& history, int history_planes,
