@@ -37,19 +37,32 @@ TEST(EncodePositionForNN, EncodeStartPosition) {
       EncodePositionForNN(pblczero::NetworkFormat::INPUT_CLASSICAL_112_PLANE,
                           history, 8, FillEmptyHistory::NO, nullptr);
 
-  InputPlane our_pawns_plane = encoded_planes[0];
-  auto our_pawns_mask = 0ull;
+  InputPlane our_pawns_plane_lower = encoded_planes[0];
+  InputPlane our_pawns_plane_middle = encoded_planes[1];
+  InputPlane our_pawns_plane_upper = encoded_planes[2];
+
+  auto our_pawns_mask_middle = 0ull;
+
   for (auto i = 0; i < 8; i++) {
     // First pawn is at square a2 (position 8)
     // Last pawn is at square h2 (position 8 + 7 = 15)
-    our_pawns_mask |= 1ull << (8 + i);
+    our_pawns_mask_middle |= 1ull << (8 + i);
   }
-  EXPECT_EQ(our_pawns_plane.mask, our_pawns_mask);
-  EXPECT_EQ(our_pawns_plane.value, 1.0f);
 
-  InputPlane our_knights_plane = encoded_planes[1];
-  EXPECT_EQ(our_knights_plane.mask, (1ull << 1) | (1ull << 6));
-  EXPECT_EQ(our_knights_plane.value, 1.0f);
+  EXPECT_EQ(our_pawns_plane_lower.value, 0.0f);
+  EXPECT_EQ(our_pawns_plane_middle.mask, our_pawns_mask_middle);
+  EXPECT_EQ(our_pawns_plane_upper.value, 0.0f);
+
+
+  InputPlane our_knights_plane_lower = encoded_planes[4];
+  InputPlane our_knights_plane_middle = encoded_planes[5]];
+  InputPlane our_knights_plane_upper = encoded_planes[6];
+
+
+  EXPECT_EQ(our_knights_plane_lower.value, 0.0f);
+  EXPECT_EQ(our_knights_plane_middle.mask, (1ull << 1) | (1ull << 6));
+  EXPECT_EQ(our_knights_plane_middle.value, 1.0f);
+  EXPECT_EQ(our_knights_plane_upper.value, 0.0f);
 
   InputPlane our_bishops_plane = encoded_planes[2];
   EXPECT_EQ(our_bishops_plane.mask, (1ull << 2) | (1ull << 5));

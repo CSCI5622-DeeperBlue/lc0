@@ -70,6 +70,8 @@ class BoardSquare {
   int row() const { return square_ / 8; }
   // 0-based, left to right.
   int col() const { return square_ % 8; }
+  // 0-based, lower layer to upper layer.
+  int layer() const { return square_ % 64; }
 
   // Row := 7 - row.  Col remains the same.
   void Mirror() { square_ = square_ ^ 0b111000; }

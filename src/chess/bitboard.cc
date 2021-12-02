@@ -282,15 +282,17 @@ const int kKingCastleIndex =
 const int kQueenCastleIndex =
     kMoveToIdx[BoardSquare("e1m").as_int() * 64 + BoardSquare("a1m").as_int()];
 
+
+// 3-d will keep the same layer when flipping
 BoardSquare Transform(BoardSquare sq, int transform) {
   if ((transform & FlipTransform) != 0) {
-    sq.set(sq.row(), 7 - sq.col());
+    sq.set(sq.row(), 7 - sq.col(), sq.layer());
   }
   if ((transform & MirrorTransform) != 0) {
-    sq.set(7 - sq.row(), sq.col());
+    sq.set(7 - sq.row(), sq.col(), sq.layer());
   }
   if ((transform & TransposeTransform) != 0) {
-    sq.set(7 - sq.col(), 7 - sq.row());
+    sq.set(7 - sq.col(), 7 - sq.row(), sq.layer());
   }
   return sq;
 }
@@ -318,7 +320,7 @@ Move::Move(const std::string& str, bool black) {
    SetFrom(BoardSquare(str.substr(0, 3), black));
    SetTo(BoardSquare(str.substr(3, 6), black));
   }
-  
+
   isPromotion = (str.size() == 7 || str.size() == 5 );
 
   if (isPromotion) {
