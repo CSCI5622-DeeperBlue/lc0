@@ -283,13 +283,13 @@ InputPlanes EncodePositionForNN(
     result[base + 10].mask = (board.ours() & board.rooks.middle()).as_int();
     result[base + 11].mask = (board.ours() & board.rooks.upper()).as_int();
     // our queens - bottom, middle, upper
-    result[base + 12].mask = (board.ours() & board.queens.lower()).as_int();
-    result[base + 13].mask = (board.ours() & board.queens.middle()).as_int();
-    result[base + 14].mask = (board.ours() & board.queens.upper()).as_int();
+    result[base + 12].mask = (board.ours() & board.queen.lower()).as_int();
+    result[base + 13].mask = (board.ours() & board.queen.middle()).as_int();
+    result[base + 14].mask = (board.ours() & board.queen.upper()).as_int();
     // our kings - bottom, middle, upper
-    result[base + 15].mask = (board.ours() & board.kings.lower()).as_int();
-    result[base + 16].mask = (board.ours() & board.kings.middle()).as_int();
-    result[base + 17].mask = (board.ours() & board.kings.upper()).as_int();
+    result[base + 15].mask = (board.ours() & board.king.lower()).as_int();
+    result[base + 16].mask = (board.ours() & board.king.middle()).as_int();
+    result[base + 17].mask = (board.ours() & board.king.upper()).as_int();
 
     // theirs pawns - bottom, middle, upper
     result[base + 18].mask = (board.theirs() & board.pawns.lower()).as_int();
@@ -308,18 +308,19 @@ InputPlanes EncodePositionForNN(
     result[base + 28].mask = (board.theirs() & board.rooks.middle()).as_int();
     result[base + 29].mask = (board.theirs() & board.rooks.upper()).as_int();
     // theirs queens - bottom, middle, upper
-    result[base + 30].mask = (board.theirs() & board.queens.lower()).as_int();
-    result[base + 31].mask = (board.theirs() & board.queens.middle()).as_int();
-    result[base + 32].mask = (board.theirs() & board.queens.upper()).as_int();
+    result[base + 30].mask = (board.theirs() & board.queen.lower()).as_int();
+    result[base + 31].mask = (board.theirs() & board.queen.middle()).as_int();
+    result[base + 32].mask = (board.theirs() & board.queen.upper()).as_int();
     // theirs kings - bottom, middle, upper
-    result[base + 33].mask = (board.theirs() & board.kings.lower()).as_int();
-    result[base + 34].mask = (board.theirs() & board.kings.middle()).as_int();
-    result[base + 35].mask = (board.theirs() & board.kings.upper()).as_int();
+    result[base + 33].mask = (board.theirs() & board.king.lower()).as_int();
+    result[base + 34].mask = (board.theirs() & board.king.middle()).as_int();
+    result[base + 35].mask = (board.theirs() & board.king.upper()).as_int();
 
-    if (repetitions >= 1) result[base + 12].SetAll();
+    if (repetitions >= 1) result[base + 36].SetAll();
 
     // If en passant flag is set, undo last pawn move by removing the pawn from
     // the new square and putting into pre-move square.
+    // 3d update en passant
     if (history_idx < 0 && !board.en_passant().empty()) {
       const auto idx = GetLowestBit(board.en_passant().as_int());
       if (idx < 8) {  // "Us" board

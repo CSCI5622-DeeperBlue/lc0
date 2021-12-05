@@ -58,18 +58,21 @@ BoardSquare OldPosition(const InputPlane& prev, BitBoard mask_diff) {
 void PopulateBoard(pblczero::NetworkFormat::InputFormat input_format,
                    InputPlanes planes, ChessBoard* board, int* rule50,
                    int* gameply) {
-  auto pawnsOurs = BitBoard(planes[0].mask);
-  auto knightsOurs = BitBoard(planes[1].mask);
-  auto bishopOurs = BitBoard(planes[2].mask);
-  auto rookOurs = BitBoard(planes[3].mask);
-  auto queenOurs = BitBoard(planes[4].mask);
-  auto kingOurs = BitBoard(planes[5].mask);
-  auto pawnsTheirs = BitBoard(planes[6].mask);
-  auto knightsTheirs = BitBoard(planes[7].mask);
-  auto bishopTheirs = BitBoard(planes[8].mask);
-  auto rookTheirs = BitBoard(planes[9].mask);
-  auto queenTheirs = BitBoard(planes[10].mask);
-  auto kingTheirs = BitBoard(planes[11].mask);
+
+  auto pawnsOurs = BitBoard(planes[0].mask, planes[1].mask, planes[2].mask);
+  auto knightsOurs = BitBoard(planes[3].mask, planes[4].mask, planes[5].mask);
+  auto bishopOurs = BitBoard(planes[6].mask, planes[7].mask, planes[8].mask);
+  auto rookOurs = BitBoard(planes[9].mask, planes[10].mask, planes[11].mask);
+  auto queenOurs = BitBoard(planes[12].mask, planes[13].mask, planes[14].mask);
+  auto kingOurs = BitBoard(planes[15].mask, planes[16].mask, planes[17].mask);
+
+  auto pawnsTheirs = BitBoard(planes[18].mask, planes[19].mask, planes[20].mask);
+  auto knightsTheirs = BitBoard(planes[21].mask, planes[22].mask, planes[23].mask);
+  auto bishopTheirs = BitBoard(planes[24].mask, planes[25].mask, planes[26].mask);
+  auto rookTheirs = BitBoard(planes[27].mask, planes[28].mask, planes[29].mask);
+  auto queenTheirs = BitBoard(planes[30].mask, planes[31].mask, planes[32].mask);
+  auto kingTheirs = BitBoard(planes[33].mask, planes[34].mask, planes[35].mask);
+
   ChessBoard::Castlings castlings;
   switch (input_format) {
     case pblczero::NetworkFormat::InputFormat::INPUT_CLASSICAL_112_PLANE: {
@@ -161,7 +164,7 @@ void PopulateBoard(pblczero::NetworkFormat::InputFormat input_format,
       char piece = '\0';
       if (pawnsOurs.get(row, col, layer)) {
         piece = 'P';
-      } else if (pawnsTheirs.get(row, col,layer)) {
+      } else if (pawnsTheirs.get(row, col, layer)) {
         piece = 'p';
       } else if (knightsOurs.get(row, col, layer)) {
         piece = 'N';
