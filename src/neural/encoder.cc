@@ -267,25 +267,54 @@ InputPlanes EncodePositionForNN(
     // why board.ours() & board.pawns() instead of board.pawns()?
 
     // our pawns - bottom, middle, upper
-    result[base + 0].mask = (board.ours() & board.pawns_lower()).as_int();
-    result[base + 1].mask = (board.ours() & board.pawns_middle()).as_int();
-    result[base + 2].mask = (board.ours() & board.pawns_upper()).as_int();
+    result[base + 0].mask = (board.ours() & board.pawns.lower()).as_int();
+    result[base + 1].mask = (board.ours() & board.pawns.middle()).as_int();
+    result[base + 2].mask = (board.ours() & board.pawns.upper()).as_int();
+    // our knights - bottom, middle, upper
+    result[base + 3].mask = (board.ours() & board.knights.lower()).as_int();
+    result[base + 4].mask = (board.ours() & board.knights.middle()).as_int();
+    result[base + 5].mask = (board.ours() & board.knights.upper()).as_int();
+    // our bishops - bottom, middle, upper
+    result[base + 6].mask = (board.ours() & board.bishops.lower()).as_int();
+    result[base + 7].mask = (board.ours() & board.bishops.middle()).as_int();
+    result[base + 8].mask = (board.ours() & board.bishops.upper()).as_int();
+    // our rooks - bottom, middle, upper
+    result[base + 9].mask = (board.ours() & board.rooks.lower()).as_int();
+    result[base + 10].mask = (board.ours() & board.rooks.middle()).as_int();
+    result[base + 11].mask = (board.ours() & board.rooks.upper()).as_int();
+    // our queens - bottom, middle, upper
+    result[base + 12].mask = (board.ours() & board.queens.lower()).as_int();
+    result[base + 13].mask = (board.ours() & board.queens.middle()).as_int();
+    result[base + 14].mask = (board.ours() & board.queens.upper()).as_int();
+    // our kings - bottom, middle, upper
+    result[base + 15].mask = (board.ours() & board.kings.lower()).as_int();
+    result[base + 16].mask = (board.ours() & board.kings.middle()).as_int();
+    result[base + 17].mask = (board.ours() & board.kings.upper()).as_int();
 
-
-    result[base + 1].mask = (board.ours() & board.knights()).as_int();
-
-
-    result[base + 2].mask = (board.ours() & board.bishops()).as_int();
-    result[base + 3].mask = (board.ours() & board.rooks()).as_int();
-    result[base + 4].mask = (board.ours() & board.queens()).as_int();
-    result[base + 5].mask = (board.ours() & board.kings()).as_int();
-
-    result[base + 6].mask = (board.theirs() & board.pawns()).as_int();
-    result[base + 7].mask = (board.theirs() & board.knights()).as_int();
-    result[base + 8].mask = (board.theirs() & board.bishops()).as_int();
-    result[base + 9].mask = (board.theirs() & board.rooks()).as_int();
-    result[base + 10].mask = (board.theirs() & board.queens()).as_int();
-    result[base + 11].mask = (board.theirs() & board.kings()).as_int();
+    // theirs pawns - bottom, middle, upper
+    result[base + 18].mask = (board.theirs() & board.pawns.lower()).as_int();
+    result[base + 19].mask = (board.theirs() & board.pawns.middle()).as_int();
+    result[base + 20].mask = (board.theirs() & board.pawns.upper()).as_int();
+    // theirs knights - bottom, middle, upper
+    result[base + 21].mask = (board.theirs() & board.knights.lower()).as_int();
+    result[base + 22].mask = (board.theirs() & board.knights.middle()).as_int();
+    result[base + 23].mask = (board.theirs() & board.knights.upper()).as_int();
+    // theirs bishops - bottom, middle, upper
+    result[base + 24].mask = (board.theirs() & board.bishops.lower()).as_int();
+    result[base + 25].mask = (board.theirs() & board.bishops.middle()).as_int();
+    result[base + 26].mask = (board.theirs() & board.bishops.upper()).as_int();
+    // theirs rooks - bottom, middle, upper
+    result[base + 27].mask = (board.theirs() & board.rooks.lower()).as_int();
+    result[base + 28].mask = (board.theirs() & board.rooks.middle()).as_int();
+    result[base + 29].mask = (board.theirs() & board.rooks.upper()).as_int();
+    // theirs queens - bottom, middle, upper
+    result[base + 30].mask = (board.theirs() & board.queens.lower()).as_int();
+    result[base + 31].mask = (board.theirs() & board.queens.middle()).as_int();
+    result[base + 32].mask = (board.theirs() & board.queens.upper()).as_int();
+    // theirs kings - bottom, middle, upper
+    result[base + 33].mask = (board.theirs() & board.kings.lower()).as_int();
+    result[base + 34].mask = (board.theirs() & board.kings.middle()).as_int();
+    result[base + 35].mask = (board.theirs() & board.kings.upper()).as_int();
 
     if (repetitions >= 1) result[base + 12].SetAll();
 

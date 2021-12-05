@@ -49,14 +49,15 @@ TEST(EncodePositionForNN, EncodeStartPosition) {
     our_pawns_mask_middle |= 1ull << (8 + i);
   }
 
+  //3d update, apply mask test to all 3 layers
   EXPECT_EQ(our_pawns_plane_lower.value, 0.0f);
   EXPECT_EQ(our_pawns_plane_middle.mask, our_pawns_mask_middle);
   EXPECT_EQ(our_pawns_plane_upper.value, 0.0f);
 
 
-  InputPlane our_knights_plane_lower = encoded_planes[4];
-  InputPlane our_knights_plane_middle = encoded_planes[5]];
-  InputPlane our_knights_plane_upper = encoded_planes[6];
+  InputPlane our_knights_plane_lower = encoded_planes[3];
+  InputPlane our_knights_plane_middle = encoded_planes[4];
+  InputPlane our_knights_plane_upper = encoded_planes[5];
 
 
   EXPECT_EQ(our_knights_plane_lower.value, 0.0f);
@@ -131,7 +132,7 @@ TEST(EncodePositionForNN, EncodeStartPositionFormat2) {
 
   // 3d update, change encoded planes argument from 8 to 2
   InputPlanes encoded_planes = EncodePositionForNN(
-      pblczero::NetworkFormat::INPUT_112_WITH_CASTLING_PLANE, history, 8,
+      pblczero::NetworkFormat::INPUT_112_WITH_CASTLING_PLANE, history, 2,
       FillEmptyHistory::NO, nullptr);
 
   InputPlane our_pawns_plane = encoded_planes[0];
@@ -225,7 +226,7 @@ TEST(EncodePositionForNN, EncodeStartPositionFormat3) {
   
   // 3d update change EncodePositionForNN declaration - from 8 to 2
   InputPlanes encoded_planes = EncodePositionForNN(
-      pblczero::NetworkFormat::INPUT_112_WITH_CANONICALIZATION, history, 8,
+      pblczero::NetworkFormat::INPUT_112_WITH_CANONICALIZATION, history, 2,
       FillEmptyHistory::NO, nullptr);
 
   //3d update encoded planes indices
@@ -321,7 +322,7 @@ TEST(EncodePositionForNN, EncodeFiftyMoveCounter) {
   // 3d updates, change encoded planes declaration
   InputPlanes encoded_planes =
       EncodePositionForNN(pblczero::NetworkFormat::INPUT_CLASSICAL_112_PLANE,
-                          history, 8, FillEmptyHistory::NO, nullptr);
+                          history, 2, FillEmptyHistory::NO, nullptr);
 
   InputPlane we_are_black_plane = encoded_planes[13 * 8 + 4];
   EXPECT_EQ(we_are_black_plane.mask, kAllSquaresMask);
@@ -337,7 +338,7 @@ TEST(EncodePositionForNN, EncodeFiftyMoveCounter) {
   // 3d updates, change encoded planes declaration
   encoded_planes =
       EncodePositionForNN(pblczero::NetworkFormat::INPUT_CLASSICAL_112_PLANE,
-                          history, 8, FillEmptyHistory::NO, nullptr);
+                          history, 2, FillEmptyHistory::NO, nullptr);
 
   we_are_black_plane = encoded_planes[13 * 8 + 4];
   EXPECT_EQ(we_are_black_plane.mask, 0ull);
@@ -359,7 +360,7 @@ TEST(EncodePositionForNN, EncodeFiftyMoveCounterFormat3) {
 
   // 3d updates, change encoded planes declaration
   InputPlanes encoded_planes = EncodePositionForNN(
-      pblczero::NetworkFormat::INPUT_112_WITH_CANONICALIZATION, history, 8,
+      pblczero::NetworkFormat::INPUT_112_WITH_CANONICALIZATION, history, 2,
       FillEmptyHistory::NO, nullptr);
 
   InputPlane enpassant_plane = encoded_planes[13 * 8 + 4];
@@ -374,7 +375,7 @@ TEST(EncodePositionForNN, EncodeFiftyMoveCounterFormat3) {
 
   // 3d updates, change encoded planes declaration
   encoded_planes = EncodePositionForNN(
-      pblczero::NetworkFormat::INPUT_112_WITH_CANONICALIZATION, history, 8,
+      pblczero::NetworkFormat::INPUT_112_WITH_CANONICALIZATION, history, 2,
       FillEmptyHistory::NO, nullptr);
 
   enpassant_plane = encoded_planes[13 * 8 + 4];
@@ -396,7 +397,7 @@ TEST(EncodePositionForNN, EncodeEndGameFormat1) {
   // 3d updates, change encoded planes declaration
   InputPlanes encoded_planes =
       EncodePositionForNN(pblczero::NetworkFormat::INPUT_CLASSICAL_112_PLANE,
-                          history, 8, FillEmptyHistory::NO, &transform);
+                          history, 2, FillEmptyHistory::NO, &transform);
 
   EXPECT_EQ(transform, NoTransform);
 
@@ -418,7 +419,7 @@ TEST(EncodePositionForNN, EncodeEndGameFormat3) {
   int transform;
   // 3d updates, change encoded planes declaration
   InputPlanes encoded_planes = EncodePositionForNN(
-      pblczero::NetworkFormat::INPUT_112_WITH_CANONICALIZATION, history, 8,
+      pblczero::NetworkFormat::INPUT_112_WITH_CANONICALIZATION, history, 2,
       FillEmptyHistory::NO, &transform);
 
   EXPECT_EQ(transform, FlipTransform | MirrorTransform | TransposeTransform);
@@ -441,7 +442,7 @@ TEST(EncodePositionForNN, EncodeEndGameKingOnDiagonalFormat3) {
   int transform;
   // 3d updates, change encoded planes declaration
   InputPlanes encoded_planes = EncodePositionForNN(
-      pblczero::NetworkFormat::INPUT_112_WITH_CANONICALIZATION, history, 8,
+      pblczero::NetworkFormat::INPUT_112_WITH_CANONICALIZATION, history, 2,
       FillEmptyHistory::NO, &transform);
 
   // After mirroring transforms, our king is on diagonal and other pieces are
@@ -470,7 +471,7 @@ TEST(EncodePositionForNN, EncodeEnpassantFormat3) {
 
   // 3d updates, change encoded planes declaration
   InputPlanes encoded_planes = EncodePositionForNN(
-      pblczero::NetworkFormat::INPUT_112_WITH_CANONICALIZATION, history, 8,
+      pblczero::NetworkFormat::INPUT_112_WITH_CANONICALIZATION, history, 2,
       FillEmptyHistory::NO, nullptr);
 
   InputPlane enpassant_plane = encoded_planes[13 * 8 + 4];
@@ -490,7 +491,7 @@ TEST(EncodePositionForNN, EncodeEnpassantFormat3) {
 
   // 3d updates, change encoded planes declaration
   encoded_planes = EncodePositionForNN(
-      pblczero::NetworkFormat::INPUT_112_WITH_CANONICALIZATION, history, 8,
+      pblczero::NetworkFormat::INPUT_112_WITH_CANONICALIZATION, history, 2,
       FillEmptyHistory::NO, nullptr);
 
   // No more en passant bit.
@@ -511,7 +512,7 @@ TEST(EncodePositionForNN, EncodeEnpassantFormat3) {
 
   // 3d updates, change encoded planes declaration
   encoded_planes = EncodePositionForNN(
-      pblczero::NetworkFormat::INPUT_112_WITH_CANONICALIZATION, history, 8,
+      pblczero::NetworkFormat::INPUT_112_WITH_CANONICALIZATION, history, 2,
       FillEmptyHistory::NO, nullptr);
 
   // Should be one plane of history.
@@ -546,7 +547,7 @@ TEST(EncodePositionForNN, EncodeEarlyGameFlipFormat3) {
   int transform;
   // 3d updates, change encoded planes declaration
   InputPlanes encoded_planes = EncodePositionForNN(
-      pblczero::NetworkFormat::INPUT_112_WITH_CANONICALIZATION, history, 8,
+      pblczero::NetworkFormat::INPUT_112_WITH_CANONICALIZATION, history, 2,
       FillEmptyHistory::NO, &transform);
 
   EXPECT_EQ(transform, NoTransform);
@@ -563,7 +564,7 @@ TEST(EncodePositionForNN, EncodeEarlyGameFlipFormat3) {
   // Our king offside, but theirs is not.
   // 3d updates, change encoded planes declaration
   encoded_planes = EncodePositionForNN(
-      pblczero::NetworkFormat::INPUT_112_WITH_CANONICALIZATION, history, 8,
+      pblczero::NetworkFormat::INPUT_112_WITH_CANONICALIZATION, history, 2,
       FillEmptyHistory::NO, &transform);
 
   EXPECT_EQ(transform, FlipTransform);
