@@ -54,6 +54,9 @@ const ChessBoard ChessBoard::kStartposBoard(ChessBoard::kStartposFen);
 // 3d TODO
 const BitBoard ChessBoard::kPawnMask = 0x00FFFFFFFFFFFF00ULL;
 
+const int kEnPassantLayer = 1;
+const int kCastleLayer = 1;
+
 void ChessBoard::Clear() {
   std::memset(reinterpret_cast<void*>(this), 0, sizeof(ChessBoard));
 }
@@ -553,15 +556,18 @@ MoveList ChessBoard::GeneratePseudolegalMoves() const {
       {
         const auto dst_row = source.row() + 1;
         const auto dst_col = source.col();
-        const BoardSquare destination(dst_row, dst_col);
+
+        // 3d todo: this needs to be more complex, can move forward or downward as well
+        const auto dst_layer = source.layer();
+        const BoardSquare destination(dst_row, dst_col, dst_layer);
 
         if (!our_pieces_.get(destination) && !their_pieces_.get(destination)) {
           if (dst_row != RANK_8) {
             result.emplace_back(source, destination);
             if (dst_row == RANK_3) {
               // Maybe it'll be possible to move two squares.
-              if (!our_pieces_.get(RANK_4, dst_col) &&
-                  !their_pieces_.get(RANK_4, dst_col)) {
+              if (!our_pieces_.get(RANK_4, dst_col, dst_layer) &&
+                  !their_pieces_.get(RANK_4, dst_col, dst_layer)) {
                 result.emplace_back(source, BoardSquare(RANK_4, dst_col));
               }
             }
@@ -578,6 +584,8 @@ MoveList ChessBoard::GeneratePseudolegalMoves() const {
         for (auto direction : {-1, 1}) {
           const auto dst_row = source.row() + 1;
           const auto dst_col = source.col() + direction;
+          const auto dst_layer = source.layer();
+
           if (dst_col < 0 || dst_col >= 8) continue;
           const BoardSquare destination(dst_row, dst_col);
           if (their_pieces_.get(destination)) {
@@ -590,7 +598,7 @@ MoveList ChessBoard::GeneratePseudolegalMoves() const {
               // Ordinary capture.
               result.emplace_back(source, destination);
             }
-          } else if (dst_row == RANK_6 && pawns_.get(RANK_8, dst_col)) {
+          } else if (dst_row == RANK_6 && pawns_.get(RANK_8, dst_col, dst_layer)) {
             // En passant.
             // "Pawn" on opponent's file 8 means that en passant is possible.
             // Those fake pawns are reset in ApplyMove.
@@ -677,9 +685,9 @@ bool ChessBoard::ApplyMove(Move move) {
 
   // En passant.
   if (from_row == RANK_5 && pawns_.get(from) && from_col != to_col &&
-      pawns_.get(RANK_8, to_col)) {
-    pawns_.reset(RANK_5, to_col);
-    their_pieces_.reset(RANK_5, to_col);
+      pawns_.get(RANK_8, to_col, kEnPassantLayer)) {
+    pawns_.reset(RANK_5, to_col, kEnPassantLayer);
+    their_pieces_.reset(RANK_5, to_col, kEnPassantLayer);
   }
 
   // Remove en passant flags.
@@ -731,7 +739,7 @@ bool ChessBoard::ApplyMove(Move move) {
   if (to_row - from_row == 2 && pawns_.get(to)) {
     BoardSquare ep_sq(to_row - 1, to_col);
     if (kPawnAttacks[ep_sq.as_int()].intersects(their_pieces_ & pawns_)) {
-      pawns_.set(0, to_col);
+      pawns_.set(0, to_col, kEnPassantLayer);
     }
   }
   return reset_50_moves;
@@ -935,7 +943,9 @@ bool ChessBoard::IsLegalMove(Move move,
   // En passant. Complex but rare. Just apply
   // and check that we are not under check.
   if (from.row() == 4 && pawns_.get(from) && from.col() != to.col() &&
-      pawns_.get(7, to.col())) {
+      //3d update, because always first move, can assume on middle layer. May need to think about this more
+
+      pawns_.get(7, to.col(), 1)) {
     ChessBoard board(*this);
     board.ApplyMove(move);
     return !board.IsUnderCheck();
@@ -1103,7 +1113,7 @@ void ChessBoard::SetFromFen(std::string fen, int* rule50_ply, int* moves) {
       if (c == 'k') {
         // Finding rightmost rook.
         for (right_rook = FILE_H; right_rook > king_col; --right_rook) {
-          if (rooks.get(is_black ? RANK_8 : RANK_1, right_rook)) break;
+          if (rooks.get(is_black ? RANK_8 : RANK_1, right_rook, kCastleLayer)) break;
         }
         if (right_rook == king_col) {
           throw Exception("Bad fen string (no kingside rook): " + fen);
@@ -1116,7 +1126,7 @@ void ChessBoard::SetFromFen(std::string fen, int* rule50_ply, int* moves) {
       } else if (c == 'q') {
         // Finding leftmost rook.
         for (left_rook = FILE_A; left_rook < king_col; ++left_rook) {
-          if (rooks.get(is_black ? RANK_8 : RANK_1, left_rook)) break;
+          if (rooks.get(is_black ? RANK_8 : RANK_1, left_rook, kCastleLayer)) break;
         }
         if (left_rook == king_col) {
           throw Exception("Bad fen string (no queenside rook): " + fen);
@@ -1154,7 +1164,7 @@ void ChessBoard::SetFromFen(std::string fen, int* rule50_ply, int* moves) {
     auto square = BoardSquare(en_passant);
     if (square.row() != RANK_3 && square.row() != RANK_6)
       throw Exception("Bad fen string: " + fen + " wrong en passant rank");
-    pawns_.set((square.row() == RANK_3) ? RANK_1 : RANK_8, square.col());
+    pawns_.set((square.row() == RANK_3) ? RANK_1 : RANK_8, square.col(), kEnPassantLayer);
   }
 
   if (who_to_move == "b" || who_to_move == "B") {
@@ -1191,47 +1201,49 @@ bool ChessBoard::HasMatingMaterial() const {
 
 std::string ChessBoard::DebugString() const {
   std::string result;
-  for (int i = 7; i >= 0; --i) {
-    for (int j = 0; j < 8; ++j) {
-      if (!our_pieces_.get(i, j) && !their_pieces_.get(i, j)) {
-        if (i == 2 && pawns_.get(0, j))
-          result += '*';
-        else if (i == 5 && pawns_.get(7, j))
-          result += '*';
-        else
-          result += '.';
-        continue;
+  for (int k = 2; k >= 0; --k) {
+    for (int i = 7; i >= 0; --i) {
+      for (int j = 0; j < 8; ++j) {
+        if (!our_pieces_.get(i, j, k) && !their_pieces_.get(i, j, k)) {
+          if (i == 2 && pawns_.get(0, j, k))
+            result += '*';
+          else if (i == 5 && pawns_.get(7, j, k))
+            result += '*';
+          else
+            result += '.';
+          continue;
+        }
+        if (our_king_ == i * 8 + j) {
+          result += 'K';
+          continue;
+        }
+        if (their_king_ == i * 8 + j) {
+          result += 'k';
+          continue;
+        }
+        char c = '?';
+        if ((pawns_ & kPawnMask).get(i, j, k)) {
+          c = 'p';
+        } else if (bishops_.get(i, j, k)) {
+          if (rooks_.get(i, j, k))
+            c = 'q';
+          else
+            c = 'b';
+        } else if (rooks_.get(i, j, k)) {
+          c = 'r';
+        } else {
+          c = 'n';
+        }
+        if (our_pieces_.get(i, j, k)) c = std::toupper(c);
+        result += c;
       }
-      if (our_king_ == i * 8 + j) {
-        result += 'K';
-        continue;
+      if (i == 0) {
+        result += " " + castlings_.DebugString();
+        result += flipped_ ? " (from black's eyes)" : " (from white's eyes)";
+        result += " Hash: " + std::to_string(Hash());
       }
-      if (their_king_ == i * 8 + j) {
-        result += 'k';
-        continue;
-      }
-      char c = '?';
-      if ((pawns_ & kPawnMask).get(i, j)) {
-        c = 'p';
-      } else if (bishops_.get(i, j)) {
-        if (rooks_.get(i, j))
-          c = 'q';
-        else
-          c = 'b';
-      } else if (rooks_.get(i, j)) {
-        c = 'r';
-      } else {
-        c = 'n';
-      }
-      if (our_pieces_.get(i, j)) c = std::toupper(c);
-      result += c;
+      result += '\n';
     }
-    if (i == 0) {
-      result += " " + castlings_.DebugString();
-      result += flipped_ ? " (from black's eyes)" : " (from white's eyes)";
-      result += " Hash: " + std::to_string(Hash());
-    }
-    result += '\n';
   }
   return result;
 }

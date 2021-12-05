@@ -52,12 +52,6 @@ Finally, lc0 requires a compiler supporting C++17. Minimal versions seem to be g
 
 Given those basics, the OS and backend specific instructions are below.
 
-## 3d
-
-Define FEN string starting position as:
-
-    "8/8/8/8/8/8/8/8/rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR/8/8/8/8/8/8/8/8 w KQkq - 0 1";
-
 ### Linux
 
 #### Generic

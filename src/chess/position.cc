@@ -35,23 +35,23 @@
 namespace {
 // GetPieceAt returns the piece found at row, col on board or the null-char '\0'
 // in case no piece there.
-char GetPieceAt(const lczero::ChessBoard& board, int row, int col) {
+char GetPieceAt(const lczero::ChessBoard& board, int row, int col, int layer) {
   char c = '\0';
-  if (board.ours().get(row, col) || board.theirs().get(row, col)) {
-    if (board.pawns().get(row, col)) {
+  if (board.ours().get(row, col, layer) || board.theirs().get(row, col, layer)) {
+    if (board.pawns().get(row, col, layer)) {
       c = 'P';
-    } else if (board.kings().get(row, col)) {
+    } else if (board.kings().get(row, col, layer)) {
       c = 'K';
-    } else if (board.bishops().get(row, col)) {
+    } else if (board.bishops().get(row, col, layer)) {
       c = 'B';
-    } else if (board.queens().get(row, col)) {
+    } else if (board.queens().get(row, col, layer)) {
       c = 'Q';
-    } else if (board.rooks().get(row, col)) {
+    } else if (board.rooks().get(row, col, layer)) {
       c = 'R';
     } else {
       c = 'N';
     }
-    if (board.theirs().get(row, col)) {
+    if (board.theirs().get(row, col, layer)) {
       c = std::tolower(c);  // Capitals are for white.
     }
   }
@@ -160,26 +160,31 @@ uint64_t PositionHistory::HashLast(int positions) const {
   return HashCat(hash, Last().GetRule50Ply());
 }
 
+//3d update. Now has fen for upper and lower layers
 std::string GetFen(const Position& pos) {
   std::string result;
   const ChessBoard& board = pos.GetWhiteBoard();
-  for (int row = 7; row >= 0; --row) {
-    int emptycounter = 0;
-    for (int col = 0; col < 8; ++col) {
-      char piece = GetPieceAt(board, row, col);
-      if (emptycounter > 0 && piece) {
-        result += std::to_string(emptycounter);
-        emptycounter = 0;
+
+  for(int layer = 2; layer >= 0; --layer) {
+    for (int row = 7; row >= 0; --row) {
+      int emptycounter = 0;
+      for (int col = 0; col < 8; ++col) {
+        char piece = GetPieceAt(board, row, col, layer);
+        if (emptycounter > 0 && piece) {
+          result += std::to_string(emptycounter);
+          emptycounter = 0;
+        }
+        if (piece) {
+          result += piece;
+        } else {
+          emptycounter++;
+        }
       }
-      if (piece) {
-        result += piece;
-      } else {
-        emptycounter++;
-      }
+      if (emptycounter > 0) result += std::to_string(emptycounter);
+      if (row > 0) result += "/";
     }
-    if (emptycounter > 0) result += std::to_string(emptycounter);
-    if (row > 0) result += "/";
   }
+
   std::string enpassant = "-";
   if (!board.en_passant().empty()) {
     auto sq = *board.en_passant().begin();

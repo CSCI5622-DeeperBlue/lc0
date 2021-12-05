@@ -152,33 +152,36 @@ void PopulateBoard(pblczero::NetworkFormat::InputFormat input_format,
     kingTheirs.Mirror();
     castlings.Mirror();
   }
+
+  // 3d udpates temporary fix, likely need to iterate from 2 -> 0 with layer and add up fen string
+  const int layer = 1;
   for (int row = 7; row >= 0; --row) {
     int emptycounter = 0;
     for (int col = 0; col < 8; ++col) {
       char piece = '\0';
-      if (pawnsOurs.get(row, col)) {
+      if (pawnsOurs.get(row, col, layer)) {
         piece = 'P';
-      } else if (pawnsTheirs.get(row, col)) {
+      } else if (pawnsTheirs.get(row, col,layer)) {
         piece = 'p';
-      } else if (knightsOurs.get(row, col)) {
+      } else if (knightsOurs.get(row, col, layer)) {
         piece = 'N';
-      } else if (knightsTheirs.get(row, col)) {
+      } else if (knightsTheirs.get(row, col, layer)) {
         piece = 'n';
-      } else if (bishopOurs.get(row, col)) {
+      } else if (bishopOurs.get(row, col, layer)) {
         piece = 'B';
-      } else if (bishopTheirs.get(row, col)) {
+      } else if (bishopTheirs.get(row, col, layer)) {
         piece = 'b';
-      } else if (rookOurs.get(row, col)) {
+      } else if (rookOurs.get(row, col, layer)) {
         piece = 'R';
-      } else if (rookTheirs.get(row, col)) {
+      } else if (rookTheirs.get(row, col, layer)) {
         piece = 'r';
-      } else if (queenOurs.get(row, col)) {
+      } else if (queenOurs.get(row, col, layer)) {
         piece = 'Q';
-      } else if (queenTheirs.get(row, col)) {
+      } else if (queenTheirs.get(row, col, layer)) {
         piece = 'q';
-      } else if (kingOurs.get(row, col)) {
+      } else if (kingOurs.get(row, col, layer)) {
         piece = 'K';
-      } else if (kingTheirs.get(row, col)) {
+      } else if (kingTheirs.get(row, col, layer)) {
         piece = 'k';
       }
       if (emptycounter > 0 && piece) {

@@ -67,11 +67,19 @@ class BoardSquare {
   void set(int row, int col, int layer) { square_ = layer*64 + row * 8 + col; }
 
   // 0-based, bottom to top.
-  int row() const { return square_ / 8; }
+  int row() const { return square_ ; }
   // 0-based, left to right.
-  int col() const { return square_ % 8; }
+  int col() const { return square_; }
   // 0-based, lower layer to upper layer.
-  int layer() const { return square_ % 64; }
+  int layer() const { return square_; }
+
+  // returns pieces on specific layer
+  int lower() const { return square_ / 8; }
+  // 0-based, left to right.
+  int middle() const { return square_ % 8; }
+  // 0-based, lower layer to upper layer.
+  int upper() const { return square_ % 64; }
+
 
   // Row := 7 - row.  Col remains the same.
   void Mirror() { square_ = square_ ^ 0b111000; }
@@ -104,12 +112,15 @@ class BoardSquare {
 // Represents a board as an array of 64 bits.
 // Bit enumeration goes from bottom to top, from left to right:
 // Square a1 is bit 0, square a8 is bit 7, square b1 is bit 8.
+// 3d we need 64*3 192 bits to store all squares. We can combine three of these in an array or make an update addition/division by overloading the c++ operations
+// https://en.cppreference.com/w/cpp/language/operators
+// can likely reduce this to just one of a 256 type
+// https://stackoverflow.com/questions/5242819/c-128-256-bit-fixed-size-integer-types
 class BitBoard {
  public:
 
-  // 3d we need 64*3 192 bits to store all squares. We can combine three of these in an array or make an update addition/division by overloading the c++ operations
-  // https://en.cppreference.com/w/cpp/language/operators
   constexpr BitBoard(std::uint64_t board) : board_(board) {}
+
   BitBoard() = default;
   BitBoard(const BitBoard&) = default;
 
@@ -168,14 +179,14 @@ class BitBoard {
   // Sets value of given square to 0.
   void reset(BoardSquare square) { reset(square.as_int()); }
   void reset(std::uint8_t pos) { board_ &= ~(std::uint64_t(1) << pos); }
-  void reset(int row, int col) { reset(BoardSquare(row, col)); }
+  void reset(int row, int col, int layer) { reset(BoardSquare(row, col, layer)); }
 
   // Gets value of a square.
   bool get(BoardSquare square) const { return get(square.as_int()); }
   bool get(std::uint8_t pos) const {
     return board_ & (std::uint64_t(1) << pos);
   }
-  bool get(int row, int col) const { return get(BoardSquare(row, col)); }
+  bool get(int row, int col, int layer) const { return get(BoardSquare(row, col, layer)); }
 
   // Returns whether all bits of a board are set to 0.
   bool empty() const { return board_ == 0; }
@@ -199,9 +210,10 @@ class BitBoard {
 
   std::string DebugString() const {
     std::string res;
+    // 3d-todo need to iterate over k (layer correctly.)
     for (int i = 7; i >= 0; --i) {
       for (int j = 0; j < 8; ++j) {
-        if (get(i, j))
+        if (get(i, j, 0))
           res += '#';
         else
           res += '.';
