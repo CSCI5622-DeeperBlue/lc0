@@ -33,7 +33,7 @@
 
 namespace lczero {
 
-constexpr int kMoveHistory = 8; // 3?
+constexpr int kMoveHistory = 2; // 3?
 constexpr int kPlanesPerBoard = 13; // 13*3 = 39
 
 constexpr int kAuxPlaneBase = kPlanesPerBoard * kMoveHistory;

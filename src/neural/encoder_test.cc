@@ -35,7 +35,7 @@ TEST(EncodePositionForNN, EncodeStartPosition) {
   // 3d may need to change pblczero::NetworkFormat::INPUT_CLASSICAL_112_PLANE to new enum
   InputPlanes encoded_planes =
       EncodePositionForNN(pblczero::NetworkFormat::INPUT_CLASSICAL_112_PLANE,
-                          history, 8, FillEmptyHistory::NO, nullptr);
+                          history, 2, FillEmptyHistory::NO, nullptr);
 
   InputPlane our_pawns_plane_lower = encoded_planes[0];
   InputPlane our_pawns_plane_middle = encoded_planes[1];
@@ -81,6 +81,7 @@ TEST(EncodePositionForNN, EncodeStartPosition) {
   EXPECT_EQ(our_king_plane.value, 1.0f);
 
   // Sanity check opponent's pieces
+  // 3d update to their king plane indices [33-35]
   InputPlane their_king_plane = encoded_planes[11];
   auto their_king_row = 7;
   auto their_king_col = 4;
@@ -99,6 +100,7 @@ TEST(EncodePositionForNN, EncodeStartPosition) {
   // Auxiliary planes
 
   // It's the start of the game, so all castlings should be allowed.
+  // 3d change, change this to encoded_planes[13*2]
   for (auto i = 0; i < 4; i++) {
     InputPlane can_castle_plane = encoded_planes[13 * 8 + i];
     EXPECT_EQ(can_castle_plane.mask, kAllSquaresMask);
@@ -127,6 +129,7 @@ TEST(EncodePositionForNN, EncodeStartPositionFormat2) {
   board.SetFromFen(ChessBoard::kStartposFen);
   history.Reset(board, 0, 1);
 
+  // 3d update, change encoded planes argument from 8 to 2
   InputPlanes encoded_planes = EncodePositionForNN(
       pblczero::NetworkFormat::INPUT_112_WITH_CASTLING_PLANE, history, 8,
       FillEmptyHistory::NO, nullptr);
@@ -162,6 +165,7 @@ TEST(EncodePositionForNN, EncodeStartPositionFormat2) {
   EXPECT_EQ(our_king_plane.value, 1.0f);
 
   // Sanity check opponent's pieces
+  // 3d update, change encoded planes indices
   InputPlane their_king_plane = encoded_planes[11];
   auto their_king_row = 7;
   auto their_king_col = 4;
@@ -180,6 +184,8 @@ TEST(EncodePositionForNN, EncodeStartPositionFormat2) {
   // Auxiliary planes
 
   // Queen side castling at game start.
+
+  // 3d update change encoded planes indices
   InputPlane can_castle_plane = encoded_planes[13 * 8 + 0];
   EXPECT_EQ(can_castle_plane.mask, 1ull | (1ull << 56));
   EXPECT_EQ(can_castle_plane.value, 1.0f);
@@ -216,10 +222,13 @@ TEST(EncodePositionForNN, EncodeStartPositionFormat3) {
   board.SetFromFen(ChessBoard::kStartposFen);
   history.Reset(board, 0, 1);
 
+  
+  // 3d update change EncodePositionForNN declaration - from 8 to 2
   InputPlanes encoded_planes = EncodePositionForNN(
       pblczero::NetworkFormat::INPUT_112_WITH_CANONICALIZATION, history, 8,
       FillEmptyHistory::NO, nullptr);
 
+  //3d update encoded planes indices
   InputPlane our_pawns_plane = encoded_planes[0];
   auto our_pawns_mask = 0ull;
   for (auto i = 0; i < 8; i++) {
@@ -268,6 +277,7 @@ TEST(EncodePositionForNN, EncodeStartPositionFormat3) {
 
   // Auxiliary planes
 
+  // 3d change indices for encoded_planes (last 8 planes 78-86)
   // Queen side castling at game start.
   InputPlane can_castle_plane = encoded_planes[13 * 8 + 0];
   EXPECT_EQ(can_castle_plane.mask, 1ull | (1ull << 56));
@@ -308,6 +318,7 @@ TEST(EncodePositionForNN, EncodeFiftyMoveCounter) {
   // 1. Nf3
   history.Append(Move("g1f3", false));
 
+  // 3d updates, change encoded planes declaration
   InputPlanes encoded_planes =
       EncodePositionForNN(pblczero::NetworkFormat::INPUT_CLASSICAL_112_PLANE,
                           history, 8, FillEmptyHistory::NO, nullptr);
@@ -323,6 +334,7 @@ TEST(EncodePositionForNN, EncodeFiftyMoveCounter) {
   // 1. Nf3 Nf6
   history.Append(Move("g8f6", true));
 
+  // 3d updates, change encoded planes declaration
   encoded_planes =
       EncodePositionForNN(pblczero::NetworkFormat::INPUT_CLASSICAL_112_PLANE,
                           history, 8, FillEmptyHistory::NO, nullptr);
@@ -335,6 +347,7 @@ TEST(EncodePositionForNN, EncodeFiftyMoveCounter) {
   EXPECT_EQ(fifty_move_counter_plane.value, 2.0f);
 }
 
+
 TEST(EncodePositionForNN, EncodeFiftyMoveCounterFormat3) {
   ChessBoard board;
   PositionHistory history;
@@ -344,6 +357,7 @@ TEST(EncodePositionForNN, EncodeFiftyMoveCounterFormat3) {
   // 1. Nf3
   history.Append(Move("g1f3", false));
 
+  // 3d updates, change encoded planes declaration
   InputPlanes encoded_planes = EncodePositionForNN(
       pblczero::NetworkFormat::INPUT_112_WITH_CANONICALIZATION, history, 8,
       FillEmptyHistory::NO, nullptr);
@@ -358,6 +372,7 @@ TEST(EncodePositionForNN, EncodeFiftyMoveCounterFormat3) {
   // 1. Nf3 Nf6
   history.Append(Move("g8f6", true));
 
+  // 3d updates, change encoded planes declaration
   encoded_planes = EncodePositionForNN(
       pblczero::NetworkFormat::INPUT_112_WITH_CANONICALIZATION, history, 8,
       FillEmptyHistory::NO, nullptr);
@@ -373,10 +388,12 @@ TEST(EncodePositionForNN, EncodeFiftyMoveCounterFormat3) {
 TEST(EncodePositionForNN, EncodeEndGameFormat1) {
   ChessBoard board;
   PositionHistory history;
+  //3d update, change starting fen string
   board.SetFromFen("3r4/4k3/8/1K6/8/8/8/8 w - - 0 1");
   history.Reset(board, 0, 1);
 
   int transform;
+  // 3d updates, change encoded planes declaration
   InputPlanes encoded_planes =
       EncodePositionForNN(pblczero::NetworkFormat::INPUT_CLASSICAL_112_PLANE,
                           history, 8, FillEmptyHistory::NO, &transform);
@@ -394,10 +411,12 @@ TEST(EncodePositionForNN, EncodeEndGameFormat1) {
 TEST(EncodePositionForNN, EncodeEndGameFormat3) {
   ChessBoard board;
   PositionHistory history;
+  //3d update, change encoded planes string
   board.SetFromFen("3r4/4k3/8/1K6/8/8/8/8 w - - 0 1");
   history.Reset(board, 0, 1);
 
   int transform;
+  // 3d updates, change encoded planes declaration
   InputPlanes encoded_planes = EncodePositionForNN(
       pblczero::NetworkFormat::INPUT_112_WITH_CANONICALIZATION, history, 8,
       FillEmptyHistory::NO, &transform);
@@ -415,10 +434,12 @@ TEST(EncodePositionForNN, EncodeEndGameFormat3) {
 TEST(EncodePositionForNN, EncodeEndGameKingOnDiagonalFormat3) {
   ChessBoard board;
   PositionHistory history;
+  //3d updates fen string
   board.SetFromFen("3r4/4k3/2K5/8/8/8/8/8 w - - 0 1");
   history.Reset(board, 0, 1);
 
   int transform;
+  // 3d updates, change encoded planes declaration
   InputPlanes encoded_planes = EncodePositionForNN(
       pblczero::NetworkFormat::INPUT_112_WITH_CANONICALIZATION, history, 8,
       FillEmptyHistory::NO, &transform);
@@ -447,6 +468,7 @@ TEST(EncodePositionForNN, EncodeEnpassantFormat3) {
   history.Append(Move("e4e5", false));
   history.Append(Move("f2f4", false));
 
+  // 3d updates, change encoded planes declaration
   InputPlanes encoded_planes = EncodePositionForNN(
       pblczero::NetworkFormat::INPUT_112_WITH_CANONICALIZATION, history, 8,
       FillEmptyHistory::NO, nullptr);
@@ -455,6 +477,7 @@ TEST(EncodePositionForNN, EncodeEnpassantFormat3) {
   EXPECT_EQ(enpassant_plane.mask, 1ull << 61);
 
   // Pawn move, no history.
+  // 3d update, change first for loop to match history moves
   for (int i = 0; i < 7; i++) {
     for (int j = 0; j < 13; j++) {
       InputPlane zeroed_history = encoded_planes[13 + i * 13 + j];
@@ -465,6 +488,7 @@ TEST(EncodePositionForNN, EncodeEnpassantFormat3) {
   // Boring move.
   history.Append(Move("g1f3", false));
 
+  // 3d updates, change encoded planes declaration
   encoded_planes = EncodePositionForNN(
       pblczero::NetworkFormat::INPUT_112_WITH_CANONICALIZATION, history, 8,
       FillEmptyHistory::NO, nullptr);
@@ -474,6 +498,7 @@ TEST(EncodePositionForNN, EncodeEnpassantFormat3) {
   EXPECT_EQ(enpassant_plane.mask, 0ull);
 
   // Previous was en passant, no history.
+  // 3d update, for loop definition
   for (int i = 0; i < 7; i++) {
     for (int j = 0; j < 13; j++) {
       InputPlane zeroed_history = encoded_planes[13 + i * 13 + j];
@@ -484,11 +509,13 @@ TEST(EncodePositionForNN, EncodeEnpassantFormat3) {
   // Another boring move.
   history.Append(Move("g1f3", false));
 
+  // 3d updates, change encoded planes declaration
   encoded_planes = EncodePositionForNN(
       pblczero::NetworkFormat::INPUT_112_WITH_CANONICALIZATION, history, 8,
       FillEmptyHistory::NO, nullptr);
 
   // Should be one plane of history.
+  // 3d update, first for loop
   for (int i = 0; i < 7; i++) {
     for (int j = 0; j < 13; j++) {
       InputPlane zeroed_history = encoded_planes[13 + i * 13 + j];
@@ -517,6 +544,7 @@ TEST(EncodePositionForNN, EncodeEarlyGameFlipFormat3) {
   // Their king offside, but not ours.
 
   int transform;
+  // 3d updates, change encoded planes declaration
   InputPlanes encoded_planes = EncodePositionForNN(
       pblczero::NetworkFormat::INPUT_112_WITH_CANONICALIZATION, history, 8,
       FillEmptyHistory::NO, &transform);
@@ -533,6 +561,7 @@ TEST(EncodePositionForNN, EncodeEarlyGameFlipFormat3) {
   history.Append(Move("e2e3", false));
 
   // Our king offside, but theirs is not.
+  // 3d updates, change encoded planes declaration
   encoded_planes = EncodePositionForNN(
       pblczero::NetworkFormat::INPUT_112_WITH_CANONICALIZATION, history, 8,
       FillEmptyHistory::NO, &transform);

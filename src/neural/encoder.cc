@@ -266,11 +266,9 @@ InputPlanes EncodePositionForNN(
 
     // why board.ours() & board.pawns() instead of board.pawns()?
 
-    // pawns - bottom layer
+    // our pawns - bottom, middle, upper
     result[base + 0].mask = (board.ours() & board.pawns_lower()).as_int();
-    // pawns - middle layer
     result[base + 1].mask = (board.ours() & board.pawns_middle()).as_int();
-    // pawns - middle layer
     result[base + 2].mask = (board.ours() & board.pawns_upper()).as_int();
 
 
