@@ -53,9 +53,6 @@ class BoardSquare {
   constexpr BoardSquare(int row, int col) : BoardSquare(64 + row * 8 + col) {}
   // From Square name, e.g e4. Only lowercase.
 
-  // 3d
-  // Jesse Will update
-
   BoardSquare(const std::string& str, bool black = false)
       : BoardSquare(black ? '8' - str[1] : str[1] - '1', str[0] - 'a') {}
   constexpr std::uint8_t as_int() const { return square_; }
@@ -67,19 +64,11 @@ class BoardSquare {
   void set(int row, int col, int layer) { square_ = layer*64 + row * 8 + col; }
 
   // 0-based, bottom to top.
-  int row() const { return square_ ; }
+  int row() const { return square_ / 8 ; }
   // 0-based, left to right.
-  int col() const { return square_; }
+  int col() const { return square_ % 8; }
   // 0-based, lower layer to upper layer.
-  int layer() const { return square_; }
-
-  // returns pieces on specific layer
-  int lower() const { return square_ / 8; }
-  // 0-based, left to right.
-  int middle() const { return square_ % 8; }
-  // 0-based, lower layer to upper layer.
-  int upper() const { return square_ % 64; }
-
+  int layer() const { return square_ % 64; }
 
   // Row := 7 - row.  Col remains the same.
   void Mirror() { square_ = square_ ^ 0b111000; }
@@ -119,28 +108,45 @@ class BoardSquare {
 class BitBoard {
  public:
 
-  constexpr BitBoard(std::uint64_t board) : board_(board) {}
+  constexpr BitBoard(std::uint64_t board) : board_lower_(board) {}
+  constexpr BitBoard(std::uint64_t board) : board_middle_(board) {}
+  constexpr BitBoard(std::uint64_t board) : board_upper_(board) {}
 
   BitBoard() = default;
   BitBoard(const BitBoard&) = default;
+  BitBoard(uint64_t lower, uint64_t middle, uint64_t upper);
 
-  std::uint64_t as_int() const { return board_; }
-  void clear() { board_ = 0; }
+  //3d todo: might get away with this?
+  std::uint64_t as_int() const { return board_lower_ + 64*board_middle_ + 128*board_upper_; }
+
+  void clear() {
+    board_lower_ = 0;
+    board_middle_ = 0;
+    board_upper_ = 0;
+   }
 
   // Counts the number of set bits in the BitBoard.
+
+  // 3d TODO, Hail Mary
   int count() const {
 #if defined(NO_POPCNT)
     std::uint64_t x = board_;
-    x -= (x >> 1) & 0x5555555555555555;
-    x = (x & 0x3333333333333333) + ((x >> 2) & 0x3333333333333333);
-    x = (x + (x >> 4)) & 0x0F0F0F0F0F0F0F0F;
-    return (x * 0x0101010101010101) >> 56;
+    std::uint64_t y = board_;
+    std::uint64_t z = board_;
+    return NO_POPCNT_helper(x) + NO_POPCNT_helper(y) + NO_POPCNT_helper(z);
+
 #elif defined(_MSC_VER) && defined(_WIN64)
-    return _mm_popcnt_u64(board_);
+    return  _mm_popcnt_u64(board_lower_) +
+            _mm_popcnt_u64(board_middle_) +
+            _mm_popcnt_u64(board_upper_);
 #elif defined(_MSC_VER)
-    return __popcnt(board_) + __popcnt(board_ >> 32);
+    return  __popcnt(board_lower_) + __popcnt(board_lower_ >> 32) +
+            __popcnt(board_middle_) + __popcnt(board_middle_ >> 32) +
+            __popcnt(board_upper_) + __popcnt(board_upper_ >> 32);
 #else
-    return __builtin_popcountll(board_);
+    return  __builtin_popcountll(board_lower_) +
+            __builtin_popcountll(board_middle_) +
+            __builtin_popcountll(board_upper_);
 #endif
   }
 
@@ -161,51 +167,107 @@ class BitBoard {
 #endif
   }
 
+  // helper for function above
+  uint64_t NO_POPCNT_helper(uint64_t x) {
+    x -= (x >> 1) & 0x5555555555555555;
+    x = (x & 0x3333333333333333) + ((x >> 2) & 0x3333333333333333);
+    x = (x + (x >> 4)) & 0x0F0F0F0F0F0F0F0F;
+    return (x * 0x0101010101010101) >> 56;
+  }
+
   // Sets the value for given square to 1 if cond is true.
   // Otherwise does nothing (doesn't reset!).
   void set_if(BoardSquare square, bool cond) { set_if(square.as_int(), cond); }
-  void set_if(std::uint8_t pos, bool cond) {
-    board_ |= (std::uint64_t(cond) << pos);
-  }
+  void set_if(std::uint8_t pos, bool cond) { if(cond) { set(pos); } }
   void set_if(int row, int col, bool cond) {
     set_if(BoardSquare(row, col), cond);
   }
 
   // Sets value of given square to 1.
   void set(BoardSquare square) { set(square.as_int()); }
-  void set(std::uint8_t pos) { board_ |= (std::uint64_t(1) << pos); }
+  void set(std::uint8_t pos) {
+    if(pos < 64) {
+      board_lower_ |= (std::uint64_t(1) << pos);
+    } else if (pos < 128){
+      board_middle_ |= (std::uint64_t(1) << pos);
+    } else {
+      board_upper_ |= (std::uint64_t(1) << pos);
+    }
+  }
   void set(int row, int col, int layer) { set(BoardSquare(row, col, layer)); }
 
   // Sets value of given square to 0.
   void reset(BoardSquare square) { reset(square.as_int()); }
-  void reset(std::uint8_t pos) { board_ &= ~(std::uint64_t(1) << pos); }
+  void reset(std::uint8_t pos) {
+    if(pos < 64) {
+      board_lower_ &= ~(std::uint64_t(1) << pos);
+    } else if (pos < 128){
+      board_middle_ &= ~(std::uint64_t(1) << pos);
+    } else {
+      board_upper_ &= ~(std::uint64_t(1) << pos);
+    }
+  }
+
   void reset(int row, int col, int layer) { reset(BoardSquare(row, col, layer)); }
 
   // Gets value of a square.
   bool get(BoardSquare square) const { return get(square.as_int()); }
+
   bool get(std::uint8_t pos) const {
-    return board_ & (std::uint64_t(1) << pos);
+    if(pos < 64) {
+      return board_lower_ & (std::uint64_t(1) << pos);
+    } else if (pos < 128){
+      return board_middle_ & (std::uint64_t(1) << pos);
+    } else {
+      return board_upper_ & (std::uint64_t(1) << pos);
+    }
   }
+
   bool get(int row, int col, int layer) const { return get(BoardSquare(row, col, layer)); }
 
+  // returns pieces on specific layer
+  // 3d TODO: these also need to be shifted to 64bits
+  int lower() const { return board_lower_ ;}
+  // 0-based, left to right.
+  int middle() const { return board_middle_;}
+  // 0-based, lower layer to upper layer.
+  int upper() const { return board_upper_;}
+
   // Returns whether all bits of a board are set to 0.
-  bool empty() const { return board_ == 0; }
+  bool empty() const {
+    return  (board_lower_ == 0) &&
+            (board_middle_ == 0) &&
+            (board_upper_ == 0);
+  }
 
   // Checks whether two bitboards have common bits set.
-  bool intersects(const BitBoard& other) const { return board_ & other.board_; }
+  bool intersects(const BitBoard& other) const {
+    return (board_lower_ & other.board_lower_) ||
+           (board_middle_ & other.board_middle_) ||
+           (board_upper_ & other.board_upper_);
+  }
 
   // Flips black and white side of a board.
-  void Mirror() { board_ = ReverseBytesInBytes(board_); }
+  void Mirror() {
+    board_lower_ = ReverseBytesInBytes(board_lower_);
+    board_middle_ = ReverseBytesInBytes(board_middle_);
+    board_upper_ = ReverseBytesInBytes(board_upper_);
+  }
 
   bool operator==(const BitBoard& other) const {
-    return board_ == other.board_;
+    return  (board_lower_ == other.board_lower_) &&
+            (board_middle_ == other.board_middle_) &&
+            (board_upper_ == other.board_upper_);
   }
 
   bool operator!=(const BitBoard& other) const {
-    return board_ != other.board_;
+    return (board_lower_ != other.board_lower_) ||
+           (board_middle_ != other.board_middle_) ||
+           (board_upper_ != other.board_upper_);
   }
 
-  BitIterator<BoardSquare> begin() const { return board_; }
+  // 3d TODO
+  BitIterator<BoardSquare> begin() const { return board_lower_; }
   BitIterator<BoardSquare> end() const { return 0; }
 
   std::string DebugString() const {
@@ -225,37 +287,53 @@ class BitBoard {
 
   // Applies a mask to the bitboard (intersects).
   BitBoard& operator&=(const BitBoard& a) {
-    board_ &= a.board_;
-    return *this;
+    board_lower_ &= a.board_lower_;
+    board_middle_ &= a.board_middle_;
+    board_upper_ &= a.board_upper_;
   }
 
   friend void swap(BitBoard& a, BitBoard& b) {
     using std::swap;
-    swap(a.board_, b.board_);
+    swap(a.board_lower_, b.board_lower_);
+    swap(a.board_middle_, b.board_middle_);
+    swap(a.board_upper_, b.board_upper_);
   }
 
   // Returns union (bitwise OR) of two boards.
   friend BitBoard operator|(const BitBoard& a, const BitBoard& b) {
-    return {a.board_ | b.board_};
+    return {BitBoard( a.board_lower_ | b.board_lower_,
+                  a.board_middle_ | b.board_middle_,
+                  a.board_upper_ | b.board_upper_)};
   }
 
   // Returns intersection (bitwise AND) of two boards.
   friend BitBoard operator&(const BitBoard& a, const BitBoard& b) {
-    return {a.board_ & b.board_};
+    return {BitBoard( a.board_lower_ & b.board_lower_,
+                      a.board_middle_ & b.board_middle_,
+                      a.board_upper_ & b.board_upper_)};
+
   }
 
   // Returns bitboard with one bit reset.
   friend BitBoard operator-(const BitBoard& a, const BoardSquare& b) {
-    return {a.board_ & ~b.as_board()};
+    return {BitBoard( a.board_lower_ & ~b.as_board(),
+                      a.board_middle_ & ~b.as_board(),
+                      a.board_upper_ & ~b.as_board())};
   }
 
   // Returns difference (bitwise AND-NOT) of two boards.
   friend BitBoard operator-(const BitBoard& a, const BitBoard& b) {
-    return {a.board_ & ~b.board_};
+    return {BitBoard( a.board_lower_ & ~b.board_lower_,
+                      a.board_middle_ & ~b.board_middle_,
+                      a.board_upper_ & ~b.board_upper_)};
   }
 
  private:
-  std::uint64_t board_ = 0;
+  std::uint64_t board_lower_ = 0;
+  std::uint64_t board_middle_ = 0;
+  std::uint64_t board_upper_ = 0;
+
+
 };
 
 

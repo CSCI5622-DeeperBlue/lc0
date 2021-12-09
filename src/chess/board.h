@@ -206,6 +206,10 @@ class ChessBoard {
   BitBoard ours() const { return our_pieces_; }
   BitBoard theirs() const { return their_pieces_; }
   BitBoard pawns() const { return pawns_ & kPawnMask; }
+  BitBoard pawns_upper() const { return pawns_.lower & kPawnMask; }
+  BitBoard pawns_middle() const { return pawns_.middle & kPawnMask; }
+  BitBoard pawns_upper() const { return pawns_.upper & kPawnMask; }
+
   // 3d en passant was designed to speed up game, not give stategic
   // there is rule we can use.
   BitBoard en_passant() const { return pawns_ - kPawnMask; }
