@@ -40,11 +40,10 @@ BoardSquare SingleSquare(BitBoard input) {
   assert(false);
   return BoardSquare();
 }
-
-BitBoard MaskDiffWithMirror(const InputPlane& cur, const InputPlane& prev) {
-  auto to_mirror = BitBoard(prev.mask);
-  to_mirror.Mirror();
-  return BitBoard(cur.mask ^ to_mirror.as_int());
+// 3d updates: changed arguments to be BitBoards instead of planes
+BitBoard MaskDiffWithMirror(const BitBoard cur, const BitBoard prev) {
+  auto to_mirror = prev.Mirror();
+  return cur.xor(to_mirror);
 }
 
 BoardSquare OldPosition(const InputPlane& prev, BitBoard mask_diff) {
@@ -58,7 +57,6 @@ BoardSquare OldPosition(const InputPlane& prev, BitBoard mask_diff) {
 void PopulateBoard(pblczero::NetworkFormat::InputFormat input_format,
                    InputPlanes planes, ChessBoard* board, int* rule50,
                    int* gameply) {
-
   auto pawnsOurs = BitBoard(planes[0].mask, planes[1].mask, planes[2].mask);
   auto knightsOurs = BitBoard(planes[3].mask, planes[4].mask, planes[5].mask);
   auto bishopOurs = BitBoard(planes[6].mask, planes[7].mask, planes[8].mask);
@@ -66,11 +64,15 @@ void PopulateBoard(pblczero::NetworkFormat::InputFormat input_format,
   auto queenOurs = BitBoard(planes[12].mask, planes[13].mask, planes[14].mask);
   auto kingOurs = BitBoard(planes[15].mask, planes[16].mask, planes[17].mask);
 
-  auto pawnsTheirs = BitBoard(planes[18].mask, planes[19].mask, planes[20].mask);
-  auto knightsTheirs = BitBoard(planes[21].mask, planes[22].mask, planes[23].mask);
-  auto bishopTheirs = BitBoard(planes[24].mask, planes[25].mask, planes[26].mask);
+  auto pawnsTheirs =
+      BitBoard(planes[18].mask, planes[19].mask, planes[20].mask);
+  auto knightsTheirs =
+      BitBoard(planes[21].mask, planes[22].mask, planes[23].mask);
+  auto bishopTheirs =
+      BitBoard(planes[24].mask, planes[25].mask, planes[26].mask);
   auto rookTheirs = BitBoard(planes[27].mask, planes[28].mask, planes[29].mask);
-  auto queenTheirs = BitBoard(planes[30].mask, planes[31].mask, planes[32].mask);
+  auto queenTheirs =
+      BitBoard(planes[30].mask, planes[31].mask, planes[32].mask);
   auto kingTheirs = BitBoard(planes[33].mask, planes[34].mask, planes[35].mask);
 
   ChessBoard::Castlings castlings;
@@ -156,99 +158,108 @@ void PopulateBoard(pblczero::NetworkFormat::InputFormat input_format,
     castlings.Mirror();
   }
 
-  // 3d udpates temporary fix, likely need to iterate from 2 -> 0 with layer and add up fen string
+  // 3d udpates temporary fix, likely need to iterate from 2 -> 0 with layer and
+  // add up fen string
   const int layer = 1;
-  for (int row = 7; row >= 0; --row) {
-    int emptycounter = 0;
-    for (int col = 0; col < 8; ++col) {
-      char piece = '\0';
-      if (pawnsOurs.get(row, col, layer)) {
-        piece = 'P';
-      } else if (pawnsTheirs.get(row, col, layer)) {
-        piece = 'p';
-      } else if (knightsOurs.get(row, col, layer)) {
-        piece = 'N';
-      } else if (knightsTheirs.get(row, col, layer)) {
-        piece = 'n';
-      } else if (bishopOurs.get(row, col, layer)) {
-        piece = 'B';
-      } else if (bishopTheirs.get(row, col, layer)) {
-        piece = 'b';
-      } else if (rookOurs.get(row, col, layer)) {
-        piece = 'R';
-      } else if (rookTheirs.get(row, col, layer)) {
-        piece = 'r';
-      } else if (queenOurs.get(row, col, layer)) {
-        piece = 'Q';
-      } else if (queenTheirs.get(row, col, layer)) {
-        piece = 'q';
-      } else if (kingOurs.get(row, col, layer)) {
-        piece = 'K';
-      } else if (kingTheirs.get(row, col, layer)) {
-        piece = 'k';
+  for (int layer = 2; layer >= 0; --layer) { // 3d update
+    for (int row = 7; row >= 0; --row) {
+      int emptycounter = 0;
+      for (int col = 0; col < 8; ++col) {
+        char piece = '\0';
+        if (pawnsOurs.get(row, col, layer)) {
+          piece = 'P';
+        } else if (pawnsTheirs.get(row, col, layer)) {
+          piece = 'p';
+        } else if (knightsOurs.get(row, col, layer)) {
+          piece = 'N';
+        } else if (knightsTheirs.get(row, col, layer)) {
+          piece = 'n';
+        } else if (bishopOurs.get(row, col, layer)) {
+          piece = 'B';
+        } else if (bishopTheirs.get(row, col, layer)) {
+          piece = 'b';
+        } else if (rookOurs.get(row, col, layer)) {
+          piece = 'R';
+        } else if (rookTheirs.get(row, col, layer)) {
+          piece = 'r';
+        } else if (queenOurs.get(row, col, layer)) {
+          piece = 'Q';
+        } else if (queenTheirs.get(row, col, layer)) {
+          piece = 'q';
+        } else if (kingOurs.get(row, col, layer)) {
+          piece = 'K';
+        } else if (kingTheirs.get(row, col, layer)) {
+          piece = 'k';
+        }
+        if (emptycounter > 0 && piece) {
+          fen += std::to_string(emptycounter);
+          emptycounter = 0;
+        }
+        if (piece) {
+          fen += piece;
+        } else {
+          emptycounter++;
+        }
       }
-      if (emptycounter > 0 && piece) {
-        fen += std::to_string(emptycounter);
-        emptycounter = 0;
-      }
-      if (piece) {
-        fen += piece;
-      } else {
-        emptycounter++;
-      }
+      if (emptycounter > 0) fen += std::to_string(emptycounter);
+      if (row > 0) fen += "/";
     }
-    if (emptycounter > 0) fen += std::to_string(emptycounter);
-    if (row > 0) fen += "/";
   }
   fen += " ";
   fen += black_to_move ? "b" : "w";
   fen += " ";
   fen += castlings.as_string();
   fen += " ";
-  if (IsCanonicalFormat(input_format)) {
-    // Canonical format helpfully has the en passant details ready for us.
-    if (planes[kAuxPlaneBase + 4].mask == 0) {
-      fen += "-";
-    } else {
-      int col = GetLowestBit(planes[kAuxPlaneBase + 4].mask >> 56);
-      fen += BoardSquare(5, col).as_string();
-    }
-  } else {
-    auto pawndiff = BitBoard(planes[6].mask ^ planes[kPlanesPerBoard + 6].mask);
-    // If no pawns then 2 pawns, history isn't filled properly and we shouldn't
-    // try and infer enpassant.
-    if (pawndiff.count() == 2 && planes[kPlanesPerBoard + 6].mask != 0) {
-      auto from =
-          SingleSquare(planes[kPlanesPerBoard + 6].mask & pawndiff.as_int());
-      auto to = SingleSquare(planes[6].mask & pawndiff.as_int());
-      if (from.col() != to.col() || std::abs(from.row() - to.row()) != 2) {
-        fen += "-";
-      } else {
-        // TODO: Ensure enpassant is legal rather than setting it blindly?
-        // Doesn't matter for rescoring use case as only legal moves will be
-        // performed afterwards.
-        fen +=
-            BoardSquare((planes[kAuxPlaneBase + 4].mask != 0) ? 2 : 5, to.col())
-                .as_string();
-      }
-    } else {
-      fen += "-";
-    }
-  }
-  fen += " ";
-  int rule50plane = (int)planes[kAuxPlaneBase + 5].value;
-  if (IsHectopliesFormat(input_format)) {
-    rule50plane = (int)(100.0f * planes[kAuxPlaneBase + 5].value);
-  }
-  fen += std::to_string(rule50plane);
-  // Reuse the 50 move rule as gameply since we don't know better.
-  fen += " ";
-  fen += std::to_string(rule50plane);
+  // 3d updates, changed fen string to
+  // fen argument in setfromfen is only has:
+  // piece placement, active color, and castling availability (i.e. 8/8/.../8/8 w KQkq)
+
+  //if (IsCanonicalFormat(input_format)) {
+  //  // Canonical format helpfully has the en passant details ready for us.
+  //  if (planes[kAuxPlaneBase + 4].mask == 0) {
+  //    fen += "-";
+  //  } else {
+  //    int col = GetLowestBit(planes[kAuxPlaneBase + 4].mask >> 56);
+  //    fen += BoardSquare(5, col).as_string();
+  //  }
+  //} else {
+
+  //  auto pawndiff = bitboard(planes[6].mask ^ planes[kplanesperboard + 6].mask);
+  //  // if no pawns then 2 pawns, history isn't filled properly and we shouldn't
+  //  // try and infer enpassant.
+  //  if (pawndiff.count() == 2 && planes[kplanesperboard + 6].mask != 0) {
+  //    auto from =
+  //        singlesquare(planes[kplanesperboard + 6].mask & pawndiff.as_int());
+  //    auto to = singlesquare(planes[6].mask & pawndiff.as_int());
+  //    if (from.col() != to.col() || std::abs(from.row() - to.row()) != 2) {
+  //      fen += "-";
+  //    } else {
+  //      // todo: ensure enpassant is legal rather than setting it blindly?
+  //      // doesn't matter for rescoring use case as only legal moves will be
+  //      // performed afterwards.
+  //      fen +=
+  //          boardsquare((planes[kauxplanebase + 4].mask != 0) ? 2 : 5, to.col())
+  //              .as_string();
+  //    }
+  //  } else {
+  //    fen += "-";
+  //  }
+  //}
+  //fen += " ";
+  //int rule50plane = (int)planes[kauxplanebase + 5].value;
+  //if (ishectopliesformat(input_format)) {
+  //  rule50plane = (int)(100.0f * planes[kauxplanebase + 5].value);
+  //}
+  //fen += std::to_string(rule50plane);
+  //// reuse the 50 move rule as gameply since we don't know better.
+  //fen += " ";
+  //fen += std::to_string(rule50plane);
   board->SetFromFen(fen, rule50, gameply);
 }
 
+// 3d may be able to ignore? check back later
 Move DecodeMoveFromInput(const InputPlanes& planes, const InputPlanes& prior) {
-  auto pawndiff = MaskDiffWithMirror(planes[6], prior[0]);
+  auto pawndiff = MaskDiffWithMirror(planes[6], prior[0]); //MaskDiffWithMirror(BBbp, BBwp);
   auto knightdiff = MaskDiffWithMirror(planes[7], prior[1]);
   auto bishopdiff = MaskDiffWithMirror(planes[8], prior[2]);
   auto rookdiff = MaskDiffWithMirror(planes[9], prior[3]);

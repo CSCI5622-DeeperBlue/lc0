@@ -1064,7 +1064,7 @@ void ChessBoard::SetFromFen(std::string fen, int* rule50_ply, int* moves) {
     }
     if (col >= 8) throw Exception("Bad fen string (too many columns): " + fen);
 
-    // 3d update. our layer is 0 = bottom, 2 = top, fen starts at 0 = top
+    // 3d update. our layer is 0 = bottom, 2 = top, fen starts at 2 = top
     layer = 2 - row/3;
     // set the row to the appropriate row
     row = row % 7;
