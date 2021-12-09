@@ -70,12 +70,12 @@ TEST(PositionHistory, ComputeLastMoveRepetitionsWithoutLegalEnPassant) {
   PositionHistory history;
   board.SetFromFen("8/8/8/8/8/8/8/8/8/3b4/rp1r1k2/8/1RP2p1p/p1KP4/P3P2P/5P2/1R2B3 b - - 2 30");
   history.Reset(board, 2, 30);
-  history.Append(Move("f7f8", true));
-  history.Append(Move("f2f4", false));
-  history.Append(Move("d7h7", true));
-  history.Append(Move("c4d3", false));
-  history.Append(Move("h7d7", true));
-  history.Append(Move("d3c4", false));
+  history.Append(Move("f7mf8m", true));
+  history.Append(Move("f2mf4m", false));
+  history.Append(Move("d7mh7m", true));
+  history.Append(Move("c4md3m", false));
+  history.Append(Move("h7md7m", true));
+  history.Append(Move("d3mc4m", false));
   int history_idx = history.GetLength() - 1;
   const Position& repeated_position = history.GetPositionAt(history_idx);
   EXPECT_EQ(repeated_position.GetRepetitions(), 1);
@@ -84,14 +84,14 @@ TEST(PositionHistory, ComputeLastMoveRepetitionsWithoutLegalEnPassant) {
 TEST(PositionHistory, ComputeLastMoveRepetitionsWithLegalEnPassant) {
   ChessBoard board;
   PositionHistory history;
-  board.SetFromFen("3b4/rp1r1k2/8/1RP2p1p/p1KP2p1/P3P2P/5P2/1R2B3 b - - 2 30");
+  board.SetFromFen("8/8/8/8/8/8/8/8/3b4/rp1r1k2/8/1RP2p1p/p1KP2p1/P3P2P/5P2/1R2B3/8/8/8/8/8/8/8/8 b - - 2 30");
   history.Reset(board, 2, 30);
-  history.Append(Move("f7f8", true));
-  history.Append(Move("f2f4", false));
-  history.Append(Move("d7h7", true));
-  history.Append(Move("c4d3", false));
-  history.Append(Move("h7d7", true));
-  history.Append(Move("d3c4", false));
+  history.Append(Move("f7mf8m", true));
+  history.Append(Move("f2mf4m", false));
+  history.Append(Move("d7mh7m", true));
+  history.Append(Move("c4md3m", false));
+  history.Append(Move("h7md7m", true));
+  history.Append(Move("d3mc4m", false));
   int history_idx = history.GetLength() - 1;
   const Position& repeated_position = history.GetPositionAt(history_idx);
   EXPECT_EQ(repeated_position.GetRepetitions(), 0);
@@ -100,7 +100,7 @@ TEST(PositionHistory, ComputeLastMoveRepetitionsWithLegalEnPassant) {
 TEST(PositionHistory, DidRepeatSinceLastZeroingMoveCurent) {
   ChessBoard board;
   PositionHistory history;
-  board.SetFromFen("3b4/rp1r1k2/8/1RP2p1p/p1KP4/P3P2P/5P2/1R2B3 b - - 2 30");
+  board.SetFromFen("8/8/8/8/8/8/8/8/3b4/rp1r1k2/8/1RP2p1p/p1KP4/P3P2P/5P2/1R2B3/8/8/8/8/8/8/8/8 b - - 2 30");
   history.Reset(board, 2, 30);
   history.Append(Move("f7f8", true));
   history.Append(Move("f2f4", false));
@@ -114,58 +114,58 @@ TEST(PositionHistory, DidRepeatSinceLastZeroingMoveCurent) {
 TEST(PositionHistory, DidRepeatSinceLastZeroingMoveBefore) {
   ChessBoard board;
   PositionHistory history;
-  board.SetFromFen("3b4/rp1r1k2/8/1RP2p1p/p1KP4/P3P2P/5P2/1R2B3 b - - 2 30");
+  board.SetFromFen("8/8/8/8/8/8/8/8/3b4/3b4/rp1r1k2/8/1RP2p1p/p1KP4/P3P2P/5P2/1R2B3/8/8/8/8/8/8/8/8 b - - 2 30");
   history.Reset(board, 2, 30);
-  history.Append(Move("f7f8", true));
-  history.Append(Move("f2f4", false));
-  history.Append(Move("d7h7", true));
-  history.Append(Move("c4d3", false));
-  history.Append(Move("h7d7", true));
-  history.Append(Move("d3c4", false));
-  history.Append(Move("d7e7", true));
+  history.Append(Move("f7mf8m", true));
+  history.Append(Move("f2mf4m", false));
+  history.Append(Move("d7mh7m", true));
+  history.Append(Move("c4md3m", false));
+  history.Append(Move("h7md7m", true));
+  history.Append(Move("d3mc4m", false));
+  history.Append(Move("d7me7m", true));
   EXPECT_TRUE(history.DidRepeatSinceLastZeroingMove());
 }
 
 TEST(PositionHistory, DidRepeatSinceLastZeroingMoveOlder) {
   ChessBoard board;
   PositionHistory history;
-  board.SetFromFen("3b4/rp1r1k2/8/1RP2p1p/p1KP4/P3P2P/5P2/1R2B3 b - - 2 30");
+  board.SetFromFen("8/8/8/8/8/8/8/8/3b4/rp1r1k2/8/1RP2p1p/p1KP4/P3P2P/5P2/1R2B3/8/8/8/8/8/8/8/8 b - - 2 30");
   history.Reset(board, 2, 30);
-  history.Append(Move("f7f8", true));
-  history.Append(Move("f2f4", false));
-  history.Append(Move("d7h7", true));
-  history.Append(Move("c4d3", false));
-  history.Append(Move("h7d7", true));
-  history.Append(Move("d3c4", false));
-  history.Append(Move("d7e7", true));
-  history.Append(Move("c4b4", false));
+  history.Append(Move("f7mf8m", true));
+  history.Append(Move("f2mf4m", false));
+  history.Append(Move("d7mh7m", true));
+  history.Append(Move("c4md3m", false));
+  history.Append(Move("h7md7m", true));
+  history.Append(Move("d3mc4m", false));
+  history.Append(Move("d7me7m", true));
+  history.Append(Move("c4mb4m", false));
   EXPECT_TRUE(history.DidRepeatSinceLastZeroingMove());
 }
 
 TEST(PositionHistory, DidRepeatSinceLastZeroingMoveBeforeZero) {
   ChessBoard board;
   PositionHistory history;
-  board.SetFromFen("3b4/rp1r1k2/8/1RP2p1p/p1KP4/P3P2P/5P2/1R2B3 b - - 2 30");
+  board.SetFromFen("8/8/8/8/8/8/8/8/3b4/rp1r1k2/8/1RP2p1p/p1KP4/P3P2P/5P2/1R2B3/8/8/8/8/8/8/8/8 b - - 2 30");
   history.Reset(board, 2, 30);
-  history.Append(Move("f7f8", true));
-  history.Append(Move("f2f4", false));
-  history.Append(Move("d7h7", true));
-  history.Append(Move("c4d3", false));
-  history.Append(Move("h7d7", true));
-  history.Append(Move("d3c4", false));
-  history.Append(Move("d7e7", true));
-  history.Append(Move("c4b4", false));
-  history.Append(Move("h5h4", true));
+  history.Append(Move("f7mf8m", true));
+  history.Append(Move("f2mf4m", false));
+  history.Append(Move("d7mh7m", true));
+  history.Append(Move("c4md3m", false));
+  history.Append(Move("h7md7m", true));
+  history.Append(Move("d3mc4m", false));
+  history.Append(Move("d7me7m", true));
+  history.Append(Move("c4mb4m", false));
+  history.Append(Move("h5mh4m", true));
   EXPECT_FALSE(history.DidRepeatSinceLastZeroingMove());
 }
 
 TEST(PositionHistory, DidRepeatSinceLastZeroingMoveNeverRepeated) {
   ChessBoard board;
   PositionHistory history;
-  board.SetFromFen("3b4/rp1r1k2/8/1RP2p1p/p1KP4/P3P2P/5P2/1R2B3 b - - 2 30");
+  board.SetFromFen("8/8/8/8/8/8/8/8/3b4/rp1r1k2/8/1RP2p1p/p1KP4/P3P2P/5P2/1R2B3/8/8/8/8/8/8/8/8 b - - 2 30");
   history.Reset(board, 2, 30);
-  history.Append(Move("f7f8", true));
-  history.Append(Move("f2f4", false));
+  history.Append(Move("f7mf8m", true));
+  history.Append(Move("f2mf4m", false));
   EXPECT_FALSE(history.DidRepeatSinceLastZeroingMove());
 }
 
