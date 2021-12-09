@@ -108,9 +108,9 @@ class BoardSquare {
 class BitBoard {
  public:
 
-  constexpr BitBoard(std::uint64_t board) : board_lower_(board) {}
-  constexpr BitBoard(std::uint64_t board) : board_middle_(board) {}
-  constexpr BitBoard(std::uint64_t board) : board_upper_(board) {}
+  // constexpr BitBoard(uint64_t lower, uint64_t middle, uint64_t upper) : board_lower_(lower) {}
+  // constexpr BitBoard(std::uint64_t board) : board_middle_(board) {}
+  // constexpr BitBoard(std::uint64_t board) : board_upper_(board) {}
 
   BitBoard() = default;
   BitBoard(const BitBoard&) = default;
@@ -130,10 +130,10 @@ class BitBoard {
   // 3d TODO, Hail Mary
   int count() const {
 #if defined(NO_POPCNT)
-    std::uint64_t x = board_;
-    std::uint64_t y = board_;
-    std::uint64_t z = board_;
-    return NO_POPCNT_helper(x) + NO_POPCNT_helper(y) + NO_POPCNT_helper(z);
+    std::uint64_t l = board_lower_;
+    std::uint64_t m = board_middle_;
+    std::uint64_t u = board_upper_;
+    return NO_POPCNT_helper(l) + NO_POPCNT_helper(m) + NO_POPCNT_helper(u);
 
 #elif defined(_MSC_VER) && defined(_WIN64)
     return  _mm_popcnt_u64(board_lower_) +
@@ -175,6 +175,11 @@ class BitBoard {
     return (x * 0x0101010101010101) >> 56;
   }
 
+  //3d TODO hope this works. trying to overload ^ operator
+  // BitBoard custom_xor(const BitBoard& other) {
+  //   // return BitBoard(board_lower_ ^ other.lower(), board_middle_^ other.middle() ,board_upper_^ other.upper());
+  //   return BitBoard(board_lower_ || other.lower(), board_middle_ || other.middle() ,board_upper_^ other.upper());
+  // }
   // Sets the value for given square to 1 if cond is true.
   // Otherwise does nothing (doesn't reset!).
   void set_if(BoardSquare square, bool cond) { set_if(square.as_int(), cond); }
@@ -286,7 +291,7 @@ class BitBoard {
   }
 
   // Applies a mask to the bitboard (intersects).
-  BitBoard& operator&=(const BitBoard& a) {
+  friend BitBoard& operator&=(const BitBoard& a) {
     board_lower_ &= a.board_lower_;
     board_middle_ &= a.board_middle_;
     board_upper_ &= a.board_upper_;
@@ -300,7 +305,7 @@ class BitBoard {
   }
 
   // Returns union (bitwise OR) of two boards.
-  friend BitBoard operator|(const BitBoard& a, const BitBoard& b) {
+  friend BitBoard operator|(Bitboard a, Bitboard b) {
     return {BitBoard( a.board_lower_ | b.board_lower_,
                   a.board_middle_ | b.board_middle_,
                   a.board_upper_ | b.board_upper_)};

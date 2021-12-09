@@ -51,8 +51,8 @@ class KingAttackInfo {
   }
 
   bool double_check_ = 0;
-  BitBoard pinned_pieces_ = {0};
-  BitBoard attack_lines_ = {0};
+  BitBoard pinned_pieces_ = BitBoard(0,0,0);
+  BitBoard attack_lines_ = BitBoard(0,0,0);
 };
 
 // Represents a board position.
@@ -206,9 +206,11 @@ class ChessBoard {
   BitBoard ours() const { return our_pieces_; }
   BitBoard theirs() const { return their_pieces_; }
   BitBoard pawns() const { return pawns_ & kPawnMask; }
-  BitBoard pawns_upper() const { return pawns_.lower & kPawnMask; }
-  BitBoard pawns_middle() const { return pawns_.middle & kPawnMask; }
-  BitBoard pawns_upper() const { return pawns_.upper & kPawnMask; }
+
+  //3d TODO may need to update this further
+  int pawns_lower() const { return (pawns_ & kPawnMask).lower(); }
+  int pawns_middle() const { return (pawns_ & kPawnMask).middle(); }
+  int pawns_upper() const { return (pawns_ & kPawnMask).upper(); }
 
   // 3d en passant was designed to speed up game, not give stategic
   // there is rule we can use.
@@ -220,8 +222,15 @@ class ChessBoard {
     return (our_pieces_ | their_pieces_) - pawns() - our_king_ - their_king_ -
            rooks_ - bishops_;
   }
-  BitBoard kings() const {
-    return our_king_.as_board() | their_king_.as_board();
+
+  // 3d todo: need to fix this
+  BitBoard kings() {
+    // return Bitboard(0,our_king_.as_board() | their_king_.as_board(),0);
+    const BitBoard our_king_bb = BitBoard(0,0,0);
+    BitBoard their_king_bb = BitBoard(0,0,0);
+    our_king_bb.set(our_king_.as_int());
+    their_king_bb.set(their_king_.as_int());
+    return (our_king_bb | their_king_bb);
   }
   const Castlings& castlings() const { return castlings_; }
   bool flipped() const { return flipped_; }
