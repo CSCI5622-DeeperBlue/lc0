@@ -314,19 +314,17 @@ Move::Move(const std::string& str, bool black) {
   char promotion = ' ';
   std::string fromString;
   std::string toString;
-  is3d = (str.size() >= 6);
+  is3d = (str.length() >= 6);
   isPromotion = str.size() == 7 || str.size() == 5;
 
   //update characters to be 3d compatible by adding 'm'
-  if (!is3d) {
-    fromString = str.substr(0,2) + 'm';
-    toString   = str.substr(2,2) + 'm';
-  } else {
+  if (is3d) {
     fromString = str.substr(0,3);
     toString   = str.substr(3,3);
+  } else {
+    fromString = str.substr(0,2) + "m";
+    toString   = str.substr(2,2) + "m";
   }
-
-  std::cout << "3d-info: " << "bitboard.cc.move, setting from to BoardSquare: " << fromString << toString << " " << str << std::endl;
 
   SetFrom(BoardSquare(fromString, black));
   SetTo(BoardSquare(toString, black));
