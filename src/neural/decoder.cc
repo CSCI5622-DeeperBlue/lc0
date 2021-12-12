@@ -33,6 +33,8 @@ namespace lczero {
 
 namespace {
 
+// this is hacked up at the moment to compile.
+
 BoardSquare SingleSquare(BitBoard input) {
   for (auto sq : input) {
     return sq;
@@ -41,15 +43,18 @@ BoardSquare SingleSquare(BitBoard input) {
   return BoardSquare();
 }
 // 3d updates: changed arguments to be BitBoards instead of planes
-BitBoard MaskDiffWithMirror(const BitBoard cur, const BitBoard prev) {
-  prev.Mirror();
-  return cur.xor(prev);
+BitBoard MaskDiffWithMirror(const BitBoard& cur, const BitBoard& prev) {
+  // prev.Mirror();
+  // return cur.xor(prev);
+  return cur;
 }
 
 BoardSquare OldPosition(const InputPlane& prev, BitBoard mask_diff) {
-  auto to_mirror = BitBoard(prev.mask);
-  to_mirror.Mirror();
-  return SingleSquare(to_mirror & mask_diff);
+  // auto to_mirror = BitBoard(prev.mask);
+  // to_mirror.Mirror();
+  // return SingleSquare(to_mirror & mask_diff);
+  return SingleSquare(BitBoard(0,0,0));
+
 }
 
 }  // namespace
@@ -258,12 +263,13 @@ void PopulateBoard(pblczero::NetworkFormat::InputFormat input_format,
 }
 
 // 3d may be able to ignore? check back later
+// hacked up for compile.
 Move DecodeMoveFromInput(const InputPlanes& planes, const InputPlanes& prior) {
-  auto pawndiff = MaskDiffWithMirror(planes[6], prior[0]); //MaskDiffWithMirror(BBbp, BBwp);
-  auto knightdiff = MaskDiffWithMirror(planes[7], prior[1]);
-  auto bishopdiff = MaskDiffWithMirror(planes[8], prior[2]);
-  auto rookdiff = MaskDiffWithMirror(planes[9], prior[3]);
-  auto queendiff = MaskDiffWithMirror(planes[10], prior[4]);
+  auto pawndiff = MaskDiffWithMirror(BitBoard(prior[0].mask,prior[1].mask, prior[2].mask), BitBoard(prior[0].mask,prior[1].mask, prior[2].mask)); //MaskDiffWithMirror(BBbp, BBwp);
+  auto knightdiff = MaskDiffWithMirror(BitBoard(prior[0].mask,prior[1].mask, prior[2].mask), BitBoard(prior[0].mask,prior[1].mask, prior[2].mask));
+  auto bishopdiff = MaskDiffWithMirror(BitBoard(prior[0].mask,prior[1].mask, prior[2].mask), BitBoard(prior[0].mask,prior[1].mask, prior[2].mask));
+  auto rookdiff = MaskDiffWithMirror(BitBoard(prior[0].mask,prior[1].mask, prior[2].mask), BitBoard(prior[0].mask,prior[1].mask, prior[2].mask));
+  auto queendiff = MaskDiffWithMirror(BitBoard(prior[0].mask,prior[1].mask, prior[2].mask), BitBoard(prior[0].mask,prior[1].mask, prior[2].mask));
   // Handle Promotion.
   if (pawndiff.count() == 1) {
     auto from = SingleSquare(pawndiff);
@@ -287,7 +293,7 @@ Move DecodeMoveFromInput(const InputPlanes& planes, const InputPlanes& prior) {
     return Move();
   }
   // check king first as castling moves both king and rook.
-  auto kingdiff = MaskDiffWithMirror(planes[11], prior[5]);
+  auto kingdiff = MaskDiffWithMirror(BitBoard(prior[0].mask,prior[1].mask, prior[2].mask), BitBoard(prior[0].mask,prior[1].mask, prior[2].mask));
   if (kingdiff.count() == 2) {
     if (rookdiff.count() == 2) {
       auto from = OldPosition(prior[5], kingdiff);
@@ -295,7 +301,10 @@ Move DecodeMoveFromInput(const InputPlanes& planes, const InputPlanes& prior) {
       return Move(from, to);
     }
     auto from = OldPosition(prior[5], kingdiff);
-    auto to = SingleSquare(planes[11].mask & kingdiff.as_int());
+
+    // auto to = SingleSquare(planes[11].mask & kingdiff.as_int());
+    auto to = SingleSquare(BitBoard(prior[0].mask,prior[1].mask, prior[2].mask));
+
     if (std::abs(from.col() - to.col()) > 1) {
       // Chess 960 castling can leave the rook in place, but the king has moved
       // from one side of the rook to the other - thus has gone at least 2
@@ -313,14 +322,19 @@ Move DecodeMoveFromInput(const InputPlanes& planes, const InputPlanes& prior) {
   }
   if (queendiff.count() == 2) {
     auto from = OldPosition(prior[4], queendiff);
-    auto to = SingleSquare(planes[10].mask & queendiff.as_int());
+    auto to = SingleSquare(BitBoard(prior[0].mask,prior[1].mask, prior[2].mask));
+    // auto to = SingleSquare(planes[10].mask & queendiff.as_int());
+
     return Move(from, to);
   }
   if (rookdiff.count() == 2) {
     auto from = OldPosition(prior[3], rookdiff);
-    auto to = SingleSquare(planes[9].mask & rookdiff.as_int());
+
+    auto to = SingleSquare(BitBoard(prior[0].mask,prior[1].mask, prior[2].mask));
     // Only one king, so we can simply grab its current location directly.
-    auto kingpos = SingleSquare(planes[11].mask);
+
+    // auto kingpos = SingleSquare(planes[11].mask);
+    auto kingpos = SingleSquare(BitBoard(prior[0].mask,prior[1].mask, prior[2].mask));
     if (from.row() == kingpos.row() && to.row() == kingpos.row() &&
         (from.col() < kingpos.col() && to.col() > kingpos.col() ||
          from.col() > kingpos.col() && to.col() < kingpos.col())) {
@@ -335,17 +349,24 @@ Move DecodeMoveFromInput(const InputPlanes& planes, const InputPlanes& prior) {
   }
   if (bishopdiff.count() == 2) {
     auto from = OldPosition(prior[2], bishopdiff);
-    auto to = SingleSquare(planes[8].mask & bishopdiff.as_int());
+
+
+    // auto to = SingleSquare(planes[8].mask & bishopdiff.as_int());
+    auto to = SingleSquare(BitBoard(prior[0].mask,prior[1].mask, prior[2].mask));
     return Move(from, to);
   }
   if (knightdiff.count() == 2) {
     auto from = OldPosition(prior[1], knightdiff);
-    auto to = SingleSquare(planes[7].mask & knightdiff.as_int());
+
+    auto to = SingleSquare(BitBoard(prior[0].mask,prior[1].mask, prior[2].mask));
+    // auto to = SingleSquare(planes[7].mask & knightdiff.as_int());
     return Move(from, to);
   }
   if (pawndiff.count() == 2) {
     auto from = OldPosition(prior[0], pawndiff);
-    auto to = SingleSquare(planes[6].mask & pawndiff.as_int());
+    auto to = SingleSquare(BitBoard(prior[0].mask,prior[1].mask, prior[2].mask));
+    // auto to = SingleSquare(planes[6].mask & pawndiff.as_int());
+
     return Move(from, to);
   }
   assert(false);

@@ -46,7 +46,8 @@ void Numa::Init() {
   buffer = static_cast<SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX*>(malloc(len));
   GetLogicalProcessorInformationEx(RelationProcessorCore, buffer, &len);
   if (buffer->Processor.Flags & LTP_PC_SMT) {
-    threads_per_core_ = BitBoard(buffer->Processor.GroupMask[0].Mask).count();
+    //3d-todo: figure this out
+    threads_per_core_ = BitBoard(0,buffer->Processor.GroupMask[0].Mask,0).count();
   }
   free(buffer);
 

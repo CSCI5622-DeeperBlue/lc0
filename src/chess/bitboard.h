@@ -114,7 +114,11 @@ class BitBoard {
 
   BitBoard() = default;
   BitBoard(const BitBoard&) = default;
-  BitBoard(uint64_t lower, uint64_t middle, uint64_t upper);
+  BitBoard(const uint64_t& lower, const uint64_t& middle, const uint64_t& upper) {
+    board_lower_  = lower;
+    board_middle_ = middle;
+    board_upper_  = upper;
+  };
 
   //3d todo: might get away with this?
   std::uint64_t as_int() const { return board_lower_ + 64*board_middle_ + 128*board_upper_; }
@@ -291,11 +295,12 @@ class BitBoard {
   }
 
   // Applies a mask to the bitboard (intersects).
-  #pragma warning(4:4596)
+  // #pragma warning(4:4596)
   BitBoard& operator&=(const BitBoard& a) {
     board_lower_ &= a.board_lower_;
     board_middle_ &= a.board_middle_;
     board_upper_ &= a.board_upper_;
+    return *this;
   }
 
   void swap(BitBoard& a, BitBoard& b) {

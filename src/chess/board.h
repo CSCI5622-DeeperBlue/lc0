@@ -205,12 +205,11 @@ class ChessBoard {
   // # 3d need to update
   BitBoard ours() const { return our_pieces_; }
   BitBoard theirs() const { return their_pieces_; }
-  BitBoard pawns() const { return pawns_ & kPawnMask; }
 
   //3d TODO may need to update this further
-  int pawns_lower() const { return (pawns_ & kPawnMask).lower(); }
-  int pawns_middle() const { return (pawns_ & kPawnMask).middle(); }
-  int pawns_upper() const { return (pawns_ & kPawnMask).upper(); }
+  BitBoard pawns() const { return (pawns_ & kPawnMask); }
+  // int pawns_middle() const { return (pawns_ & kPawnMask).middle(); }
+  // int pawns_upper() const { return (pawns_ & kPawnMask).upper(); }
 
   // 3d en passant was designed to speed up game, not give stategic
   // there is rule we can use.
