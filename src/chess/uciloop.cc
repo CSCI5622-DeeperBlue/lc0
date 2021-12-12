@@ -234,8 +234,11 @@ void UciLoop::SendId() {
 
 void UciLoop::SendBestMove(const BestMoveInfo& move) {
   // 3d -todo, this needs to be handled in a different place, just here for client testing
-  std::string res = "bestmove " + move.bestmove.as_string() + "m";
-  if (move.ponder) res += " ponder " + move.ponder.as_string() + "m";
+
+  std::string bestmove = move.bestmove.as_string();
+  std::string res = "bestmove " + bestmove.substr(0,2) + "m" + bestmove.substr(2,2) + "m";
+
+  if (move.ponder) res += " ponder " + move.ponder.as_string();
   if (move.player != -1) res += " player " + std::to_string(move.player);
   if (move.game_id != -1) res += " gameid " + std::to_string(move.game_id);
   if (move.is_black)
