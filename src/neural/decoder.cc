@@ -42,8 +42,8 @@ BoardSquare SingleSquare(BitBoard input) {
 }
 // 3d updates: changed arguments to be BitBoards instead of planes
 BitBoard MaskDiffWithMirror(const BitBoard cur, const BitBoard prev) {
-  auto to_mirror = prev.Mirror();
-  return cur.xor(to_mirror);
+  prev.Mirror();
+  return cur.xor(prev);
 }
 
 BoardSquare OldPosition(const InputPlane& prev, BitBoard mask_diff) {

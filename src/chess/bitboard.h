@@ -291,13 +291,14 @@ class BitBoard {
   }
 
   // Applies a mask to the bitboard (intersects).
-  friend BitBoard& operator&=(const BitBoard& a) {
+  #pragma warning(4:4596)
+  BitBoard& operator&=(const BitBoard& a) {
     board_lower_ &= a.board_lower_;
     board_middle_ &= a.board_middle_;
     board_upper_ &= a.board_upper_;
   }
 
-  friend void swap(BitBoard& a, BitBoard& b) {
+  void swap(BitBoard& a, BitBoard& b) {
     using std::swap;
     swap(a.board_lower_, b.board_lower_);
     swap(a.board_middle_, b.board_middle_);
@@ -305,7 +306,7 @@ class BitBoard {
   }
 
   // Returns union (bitwise OR) of two boards.
-  friend BitBoard operator|(Bitboard a, Bitboard b) {
+  friend BitBoard operator|(const BitBoard& a, const BitBoard& b) {
     return {BitBoard( a.board_lower_ | b.board_lower_,
                   a.board_middle_ | b.board_middle_,
                   a.board_upper_ | b.board_upper_)};

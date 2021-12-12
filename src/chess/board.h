@@ -224,13 +224,13 @@ class ChessBoard {
   }
 
   // 3d todo: need to fix this
-  BitBoard kings() {
-    // return Bitboard(0,our_king_.as_board() | their_king_.as_board(),0);
-    const BitBoard our_king_bb = BitBoard(0,0,0);
-    BitBoard their_king_bb = BitBoard(0,0,0);
-    our_king_bb.set(our_king_.as_int());
-    their_king_bb.set(their_king_.as_int());
-    return (our_king_bb | their_king_bb);
+  BitBoard kings() const {
+    return BitBoard(0,our_king_.as_board() | their_king_.as_board(),0);
+    // const BitBoard our_king_bb = BitBoard(0,0,0);
+    // BitBoard their_king_bb = BitBoard(0,0,0);
+    // our_king_bb.set(our_king_.as_int());
+    // their_king_bb.set(their_king_.as_int());
+    // return (our_king_bb | their_king_bb);
   }
   const Castlings& castlings() const { return castlings_; }
   bool flipped() const { return flipped_; }
