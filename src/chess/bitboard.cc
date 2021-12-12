@@ -29,6 +29,12 @@
 
 #include "utils/exception.h"
 
+#include <iomanip>
+#include <iostream>
+#include "utils/logging.h"
+#include <sstream>
+#include <cstring>
+
 namespace lczero {
 
 namespace {
@@ -309,19 +315,22 @@ Move::Move(const std::string& str, bool black) {
   bool is3d = (str.size() >= 6);
   bool isPromotion = false;
   char promotion = ' ';
+  std::string fromString;
+  std::string toString;
+  is3d = (str.length() >= 6);
+  isPromotion = str.size() == 7 || str.size() == 5;
 
   //update characters to be 3d compatible by adding 'm'
-  if (!is3d) {
-  //  char fromString[3] = {str[0], str[1],  'm'} ;
-  //  char toString[3]   = {str[2], str[3], 'm'};
-   SetFrom(BoardSquare({str[0], str[1],  'm'}, black));
-   SetTo(BoardSquare({str[2], str[3], 'm'}, black));
+  if (is3d) {
+    fromString = str.substr(0,3);
+    toString   = str.substr(3,3);
   } else {
-   SetFrom(BoardSquare(str.substr(0, 3), black));
-   SetTo(BoardSquare(str.substr(3, 6), black));
+    fromString = str.substr(0,2) + "m";
+    toString   = str.substr(2,2) + "m";
   }
 
-  isPromotion = (str.size() == 7 || str.size() == 5 );
+  SetFrom(BoardSquare(fromString, black));
+  SetTo(BoardSquare(toString, black));
 
   if (isPromotion) {
     if (is3d) { promotion = str[6]; }
